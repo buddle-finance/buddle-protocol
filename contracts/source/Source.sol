@@ -10,15 +10,18 @@ import "hardhat/console.sol";
 contract Source is Ownable {
     using SafeERC20 for IERC20;
 
-    uint256 public nextTransferID;
+    uint constant public MERKLE_TREE_DEPTH = 16;
+    uint constant public MAX_DEPOSIT_COUNT = 2 ** MERKLE_TREE_DEPTH - 1;
+    bytes32[MERKLE_TREE_DEPTH] private branch;
+    bytes32[MERKLE_TREE_DEPTH] private zeroes;
+    
     uint256 public CONTRACT_FEE_BASIS_POINTS;
     uint256 public feeRampUp;
 
+    uint256 public nextTransferID;
+
     mapping (address => uint256) public balances;
     mapping (address => uint256) public bountyPool;
-    address[] public nonZeroBalanceTokens;
-
-    
 
     struct TransferData {
         address tokenAddress;
@@ -29,50 +32,67 @@ contract Source is Ownable {
         uint256 feeRampup;
     }
 
-    constructor() {
-        CONTRACT_FEE_BASIS_POINTS = 5;
-        feeRampUp = 1;
+    event TransferInitiated(TransferData data, Source self, uint256 nextTransferID);
+    // event
+
+    function initialize(uint256 _feeRampUp, uint256 _freeBasisPoints) public onlyOwner {
+        CONTRACT_FEE_BASIS_POINTS = _freeBasisPoints;
+        feeRampUp = _feeRampUp;
+
+        for (uint height = 0; height < MERKLE_TREE_DEPTH - 1; height++)
+            zeroes[height + 1] = sha256(abi.encodePacked(zeroes[height], zeroes[height]));
     }
 
+    function widthdraw(address _tokenAddress, address _destination, uint256 _amount) public payable {
 
+        uint256 amountPlusFee = (_amount * (10000 + CONTRACT_FEE_BASIS_POINTS)) / 10000;
 
-    function withdraw(address tokenAddress, address destination, uint256 amount) public payable {
         TransferData memory data;
-        data.tokenAddress = tokenAddress;
-        data.destination = destination;
-        data.amount = amount;
-
-        uint256 amountPlusFee = (data.amount * (10000 + CONTRACT_FEE_BASIS_POINTS)) / 10000;
+        data.tokenAddress = _tokenAddress;
+        data.destination = _destination;
+        data.amount = _amount;
         data.fee = amountPlusFee - data.amount;
-        
-        IERC20 sourceToken;
-        if (data.tokenAddress == address(0)) {
-            require(msg.value == amountPlusFee, "Incorrect amount");
-            // TODO Check if ETH is available on destination
-        } else {
-            sourceToken = IERC20(data.tokenAddress);
-            sourceToken.safeTransferFrom(msg.sender, address(this), amountPlusFee);
-            // TODO Check if token is available on destination
-        }
-
         data.startTime = block.timestamp;
         data.feeRampup = feeRampUp;
-        
-        uint prevBalance = bountyPool[data.tokenAddress];
-        bountyPool[data.tokenAddress] += data.fee;
-        balances[data.tokenAddress] += data.amount;
 
-        if (prevBalance == 0) {
-            nonZeroBalanceTokens.push(data.tokenAddress);
+        if (data.tokenAddress == address(0)) {
+            require(msg.value == amountPlusFee, "Insufficient amount");
+        } else {
+            IERC20 token = IERC20(data.tokenAddress);
+            token.safeTransferFrom(msg.sender, address(this), amountPlusFee);
         }
-        // TODO Remove element from array and reset balance and bounty for token when moveToDestination is triggered
-
-        // Using Markle proof, Create a TransferInitiated(transfer, self,nextTransferID) record and save it in a Merkle tree
         
+        bytes32 transferDataHash = sha256(abi.encodePacked(data.tokenAddress, data.destination, data.amount, data.fee, data.startTime, data.feeRampup));
+        bytes32 contractHash = sha256(abi.encodePacked(address(this)));
+        bytes32 nextTransferIDHash = sha256(abi.encodePacked(nextTransferID));
+
+        bytes32 node = sha256(abi.encodePacked(transferDataHash, contractHash, nextTransferIDHash));
 
         nextTransferID += 1;
+        updateMerkle(node);
+        
+        emit TransferInitiated(data, this, nextTransferID);
+        
 
     }
+
+    function updateMerkle(bytes32 _node) public {
+        uint size = nextTransferID % MAX_DEPOSIT_COUNT;
+        for (uint depth = 0; depth < MERKLE_TREE_DEPTH; depth++) {
+
+            if ((size & 1) == 1) {
+                branch[depth] = _node;
+                return;
+            }
+
+            _node = sha256(abi.encodePacked(branch[depth], _node));
+            size /= 2;
+        }
+        // As the loop should always end prematurely with the `return` statement,
+        // this code should be unreachable. We assert `false` just to be safe.
+        assert(false);
+    }
+
 
     function changeContractFeeBasisPoints(uint256 newContractFeeBasisPoints) public onlyOwner {
         CONTRACT_FEE_BASIS_POINTS = newContractFeeBasisPoints;
@@ -81,57 +101,5 @@ contract Source is Ownable {
     function changeContractFeeRampUp(uint256 newContractFeeRampUp) public onlyOwner {
         feeRampUp = newContractFeeRampUp;
     }
-}
-
-
-contract TestMerkleProof is MerkleProof {
-    bytes32[] public hashes;
-
-    constructor() {
-        string[4] memory transactions = [
-            "0x678eajdjsufu678",
-            "bob -> dave",
-            "carol -> alice",
-            "dave -> bob"
-        ];
-
-        for (uint i = 0; i < transactions.length; i++) {
-            hashes.push(keccak256(abi.encodePacked(transactions[i])));
-        }
-
-        uint n = transactions.length; // 4
-        uint offset = 0; 
-
-        while (n > 0) {
-            for (uint i = 0; i < n - 1; i += 2) {
-                hashes.push(
-                    keccak256(
-                        abi.encodePacked(hashes[offset + i], hashes[offset + i + 1])
-                    )
-                );
-            }
-            offset += n;
-            n = n / 2;
-        }
-    }
-
-    function getRoot() public view returns (bytes32) {
-        return hashes[hashes.length - 1];
-    }
-
-    /* verify
-    3rd leaf
-    0x1bbd78ae6188015c4a6772eb1526292b5985fc3272ead4c65002240fb9ae5d13
-
-    root
-    0x074b43252ffb4a469154df5fb7fe4ecce30953ba8b7095fe1e006185f017ad10
-
-    index
-    2
-
-    proof
-    0x948f90037b4ea787c14540d9feb1034d4a5bc251b9b5f8e57d81e4b470027af8
-    0x63ac1b92046d474f84be3aa0ee04ffe5600862228c81803cce07ac40484aee43
-    */
 }
 
