@@ -14,7 +14,7 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Greeter = await hre.ethers.getContractFactory("Source");
+  const Greeter = await hre.ethers.getContractFactory("BuddleSrcOptimism");
   const greeter = await Greeter.deploy();
 
   await greeter.deployed();

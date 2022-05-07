@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -27,6 +27,7 @@ contract BuddleSrcOptimism is Ownable {
 
     uint256 public nextTransferID;
     address[] tokens;
+    mapping (address => bool) public tokenMapping;
 
     mapping(bytes32 => bool) validTicket; // A mapping of valid ticket to prevent reentry
     uint256 public lastPaidByTicketId;
@@ -70,6 +71,17 @@ contract BuddleSrcOptimism is Ownable {
 
         for (uint height = 0; height < MERKLE_TREE_DEPTH - 1; height++) {
             zeroes[height + 1] = sha256(abi.encodePacked(zeroes[height], zeroes[height]));
+        }
+    }
+
+    function addTokens(address[] memory _tokens) public {
+        for(uint i = 0; i < _tokens.length; i++) {
+            if (!tokenMapping[_tokens[i]]) {
+                revert("Token already added");
+            }
+
+            tokens.push(_tokens[i]);
+            tokenMapping[_tokens[i]] = true;
         }
     }
 
@@ -156,7 +168,7 @@ contract BuddleSrcOptimism is Ownable {
         uint256[] memory tokensAmounts;
         bytes32 ticket;
         for (uint n = 0; n < tokens.length; n++) {
-            if(tokens[n] == ETHER_ADDRESS){
+            if(tokens[n] == ETHER_ADDRESS) {
                 tokensAmounts[n] = address(this).balance;
             } else {
                 IERC20 token = IERC20(tokens[n]);
@@ -173,10 +185,10 @@ contract BuddleSrcOptimism is Ownable {
         return ticket;
     }
 
-    /// @notice confirmTicketPayed function
-    /// @notice this finction is called by the L1 mainnet contract 
+    /// @notice confirmTicket function
+    /// @notice this function is called by the L1 mainnet contract 
     /// @notice it confirms a valid ticket and transfers the bounty to the bounty winner
-    function confirmTicketPayed(
+    function confirmTicket(
         bytes32 _ticket, 
         address[] memory _tokens,
         uint256[] memory _tokensAmounts, 
@@ -200,7 +212,7 @@ contract BuddleSrcOptimism is Ownable {
         validTicket[_ticket] = false;
 
         for (uint n = 0; n < _tokens.length; n++) {
-            if(tokens[n] == ETHER_ADDRESS){
+            if(tokens[n] == ETHER_ADDRESS) {
                 lp.transfer(_tokensAmounts[n]);
             } else {
                 IERC20 token = IERC20(_tokens[n]);

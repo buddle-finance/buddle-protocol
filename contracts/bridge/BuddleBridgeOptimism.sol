@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -75,7 +75,7 @@ contract BuddleBridgeOptimism {
         ovmL1CrossDomainMessenger.sendMessage(
             srcContract,
             abi.encodeWithSignature(
-                "confirmTicketPayed(bytes32,address[],uint256[],uint256,uint256,bytes32,address)",
+                "confirmTicket(bytes32,address[],uint256[],uint256,uint256,bytes32,address)",
                 _ticket, _tokens, _amounts, _firstIdForTicket, 
                  _lastIdForTicket, stateRoot, msg.sender
             ),
@@ -100,6 +100,8 @@ contract BuddleBridgeOptimism {
                     "" // Data empty
                 );
             }
+            // replace to sha256 is issue occur
+            // TODO: Remove if unused
             _ticket = sha256(abi.encodePacked(_ticket, _tokens[0], _amounts[0]));
         }
 
