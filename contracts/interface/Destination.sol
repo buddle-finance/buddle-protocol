@@ -1,6 +1,2 @@
 //SPDX-License-Identifier: Unlicense
-
-contract TokenMapping {
-
-}
-
+pragma solidity ^0.8.11;
