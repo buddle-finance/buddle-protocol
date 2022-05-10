@@ -12,9 +12,9 @@ contract BuddleSrcOptimism is Ownable {
 
     uint constant public MERKLE_TREE_DEPTH = 32;
     uint constant public MAX_DEPOSIT_COUNT = 2 ** MERKLE_TREE_DEPTH - 1;
-    address constant ETHER_ADDRESS = address(0);
+    address constant BASE_TOKEN_ADDRESS = address(0);
     
-    bytes32[MERKLE_TREE_DEPTH] private branch; // Stores the left neighbour at each height of tree
+    bytes32[MERKLE_TREE_DEPTH] private branch; // Stores the left neighbour in focus at each level
     bytes32[MERKLE_TREE_DEPTH] private zeroes; // Empty sparse tree to build root
 
     address messenger;  // L2 blockchain cross domain messenger contract address
@@ -40,8 +40,19 @@ contract BuddleSrcOptimism is Ownable {
     }
     
     /* events */
-    event TransferEvent(TransferData data, BuddleSrcOptimism self, uint256 transferCount);
-    event TicketEvent(bytes32 ticket, address[] tokens, uint256[] amounts, uint256 firstIdForTicket, uint256 lastIdForTicket, bytes32 stateRoot);
+    event TransferEvent(
+        TransferData data,
+        BuddleSrcOptimism self,
+        uint256 transferCount
+    );
+    event TicketEvent(
+        bytes32 ticket,
+        address[] tokens,
+        uint256[] amounts,
+        uint256 firstIdForTicket,
+        uint256 lastIdForTicket,
+        bytes32 stateRoot
+    );
 
     /* modifiers */
 
@@ -96,8 +107,8 @@ contract BuddleSrcOptimism is Ownable {
         }
 
         // Add underlying token to supported tokens
-        tokens.push(ETHER_ADDRESS);
-        tokenMapping[ETHER_ADDRESS] = true;
+        tokens.push(BASE_TOKEN_ADDRESS);
+        tokenMapping[BASE_TOKEN_ADDRESS] = true;
     }
 
     /**
@@ -196,10 +207,21 @@ contract BuddleSrcOptimism is Ownable {
         }
         
         // Hash Transfer Information and store in tree
-        bytes32 transferDataHash = sha256(abi.encodePacked(data.tokenAddress, data.destination, data.amount, data.fee, data.startTime, data.feeRampup));
+        bytes32 transferDataHash = sha256(abi.encodePacked(
+            data.tokenAddress,
+            data.destination,
+            data.amount,
+            data.fee,
+            data.startTime,
+            data.feeRampup
+        ));
         bytes32 contractHash = sha256(abi.encodePacked(address(this)));
         bytes32 transferCountHash = sha256(abi.encodePacked(transferCount));
-        bytes32 node = sha256(abi.encodePacked(transferDataHash, contractHash, transferCountHash));
+        bytes32 node = sha256(abi.encodePacked(
+            transferDataHash,
+            contractHash,
+            transferCountHash
+        ));
 
         transferCount += 1;
         updateMerkle(node);
@@ -217,7 +239,7 @@ contract BuddleSrcOptimism is Ownable {
         uint256[] memory _tokenAmounts;
         bytes32 _ticket;
         for (uint n = 0; n < tokens.length; n++) {
-            if(tokens[n] == ETHER_ADDRESS) {
+            if(tokens[n] == BASE_TOKEN_ADDRESS) {
                 _tokenAmounts[n] = address(this).balance;
             } else {
                 IERC20 _token = IERC20(tokens[n]);
@@ -231,16 +253,23 @@ contract BuddleSrcOptimism is Ownable {
         _ticket = sha256(abi.encodePacked(_ticket, _root));
         tickets[_ticket] = true;
 
-        // Maps to inputs to `confirmTicket(bytes32, address[], uint256[], uint256, uint256, bytes32, ...)`
+        // Maps to `confirmTicket(bytes32, address[], uint256[], uint256, uint256, bytes32, ...)`
         // _ticket, _tokens, _tokenAmounts, _firstTransferInTicket, _lastTransferInTicket, _stateRoot
-        emit TicketEvent(_ticket, tokens, _tokenAmounts, lastConfirmedTransfer, transferCount, _root);
+        emit TicketEvent(
+            _ticket,
+            tokens,
+            _tokenAmounts,
+            lastConfirmedTransfer,
+            transferCount,
+            _root
+        );
         
         return _ticket;
     }
 
-    /*
-     *
-     *
+    /**
+     * Confirms the ticket once liquidity is provided on the Layer-1 Buddle Bridge contract
+     * @notice can only be called by the cross domain messenger
      */
     function confirmTicket(
         bytes32 _ticket, 
@@ -272,7 +301,7 @@ contract BuddleSrcOptimism is Ownable {
 
         // Send funds mentioned in ticket to token bridge liquidity provider
         for (uint n = 0; n < _tokens.length; n++) {
-            if(tokens[n] == ETHER_ADDRESS) {
+            if(tokens[n] == BASE_TOKEN_ADDRESS) {
                 _provider.transfer(_tokenAmounts[n]);
             } else {
                 IERC20 token = IERC20(_tokens[n]);
