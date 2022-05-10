@@ -67,6 +67,94 @@ contract BuddleSrcOptimism is Ownable {
         _;
     }
 
+    /* external onlyOwner functions */
+
+    /**
+     * Initialize the contract with state variables
+     * 
+     * @param _feeBasisPoints The fee per transfer in basis points
+     * @param _feeRampUp The fee ramp up for each transfer
+     * @param _messenger The Layer-2 Cross Domain messenger contract
+     * @param _tokenBridge The Layer-1 Buddle Bridge contract
+     */
+    function initialize(
+        uint256 _feeBasisPoints,
+        uint256 _feeRampUp,
+        address _messenger,
+        address _tokenBridge
+    ) external onlyOwner {
+        require(messenger == address(0), "Contract already initialized!");
+
+        CONTRACT_FEE_BASIS_POINTS = _feeBasisPoints;
+        CONTRACT_FEE_RAMP_UP = _feeRampUp;
+        messenger = _messenger;
+        tokenBridge = _tokenBridge;
+
+        // Initialize the empty sparse merkle tree
+        for (uint height = 0; height < MERKLE_TREE_DEPTH - 1; height++) {
+            zeroes[height + 1] = sha256(abi.encodePacked(zeroes[height], zeroes[height]));
+        }
+
+        // Add underlying token to supported tokens
+        tokens.push(ETHER_ADDRESS);
+        tokenMapping[ETHER_ADDRESS] = true;
+    }
+
+    /**
+     * Change the contract fee basis points
+     *
+     */
+    function changeContractFeeBasisPoints(
+        uint256 _newContractFeeBasisPoints
+    ) external onlyOwner checkInitialization {
+        CONTRACT_FEE_BASIS_POINTS = _newContractFeeBasisPoints;
+    }
+
+    /**
+     * Change the contract fee ramp up
+     *
+     */
+    function changeContractFeeRampUp(
+        uint256 _newContractFeeRampUp
+    ) external onlyOwner checkInitialization {
+        CONTRACT_FEE_RAMP_UP = _newContractFeeRampUp;
+    }
+
+    /**
+     * Change the token bridge address
+     *
+     */
+    function changeTokenBridge(
+        address _newBridgeAddress
+    ) external onlyOwner checkInitialization {
+        tokenBridge = _newBridgeAddress;
+    }
+
+    /**
+     * Change the layer-2 cross domain messenger
+     *
+     */
+    function changeXDomainMessenger(
+        address _newMessengerAddress
+    ) external onlyOwner checkInitialization {
+        messenger = _newMessengerAddress;
+    }
+
+    /**
+     * Add supported tokens to the contract
+     *
+     */
+    function addTokens(
+        address[] memory _tokens
+    ) external onlyOwner checkInitialization {
+        for(uint i = 0; i < _tokens.length; i++) {
+            // Add token to contract only if it doesn't already exist
+            if (!tokenMapping[_tokens[i]]) {
+                tokens.push(_tokens[i]);
+                tokenMapping[_tokens[i]] = true;
+            }
+        }
+    }
 
     /* external functions */
 
@@ -84,7 +172,7 @@ contract BuddleSrcOptimism is Ownable {
         address _tokenAddress,
         address _destination,
         uint256 _amount
-    ) public payable checkInitialization returns(bytes32) {
+    ) external payable checkInitialization returns(bytes32) {
 
         // TODO: Change logic to removing fee from amount sent?
         // Calculate fee
@@ -122,25 +210,6 @@ contract BuddleSrcOptimism is Ownable {
     }
 
     /**
-     * Get the current merkle root stored in the contract
-     * @dev Taken from Ethereum's deposit contract
-     * @dev see https://etherscan.io/address/0x00000000219ab540356cbb839cbe05303d7705fa#code#L1
-     *
-     */
-    function getMerkleRoot() external view checkInitialization returns (bytes32) {
-        bytes32 node;
-        uint size = transferCount % MAX_DEPOSIT_COUNT;
-        for (uint height = 0; height < MERKLE_TREE_DEPTH; height++) {
-            if ((size & 1) == 1)
-                node = sha256(abi.encodePacked(branch[height], node));
-            else
-                node = sha256(abi.encodePacked(node, zeroes[height]));
-            size /= 2;
-        }
-        return node;
-    }
-
-    /**
      * Create a ticket before providing liquidity to the L1 bridge
      * LP creates this ticket and provides liquidity to win the bounty
      */
@@ -156,7 +225,7 @@ contract BuddleSrcOptimism is Ownable {
             }
             _ticket = sha256(abi.encodePacked(_ticket, tokens[n], _tokenAmounts[n]));
         }
-        bytes32 _root = this.getMerkleRoot();
+        bytes32 _root = getMerkleRoot();
         _ticket = sha256(abi.encodePacked(_ticket, lastConfirmedTransfer));
         _ticket = sha256(abi.encodePacked(_ticket, transferCount));
         _ticket = sha256(abi.encodePacked(_ticket, _root));
@@ -212,99 +281,7 @@ contract BuddleSrcOptimism is Ownable {
         }
     }
 
-
-
-    /* only owner functions */
-
-    /**
-     * Initialize the contract with state variables
-     * 
-     * @param _feeBasisPoints The fee per transfer in basis points
-     * @param _feeRampUp The fee ramp up for each transfer
-     * @param _messenger The Layer-2 Cross Domain messenger contract
-     * @param _tokenBridge The Layer-1 Buddle Bridge contract
-     */
-    function initialize(
-        uint256 _feeBasisPoints,
-        uint256 _feeRampUp,
-        address _messenger,
-        address _tokenBridge
-    ) public onlyOwner {
-        require(messenger == address(0), "Contract already initialized!");
-
-        CONTRACT_FEE_BASIS_POINTS = _feeBasisPoints;
-        CONTRACT_FEE_RAMP_UP = _feeRampUp;
-        messenger = _messenger;
-        tokenBridge = _tokenBridge;
-
-        // Initialize the empty sparse merkle tree
-        for (uint height = 0; height < MERKLE_TREE_DEPTH - 1; height++) {
-            zeroes[height + 1] = sha256(abi.encodePacked(zeroes[height], zeroes[height]));
-        }
-
-        // Add underlying token to supported tokens
-        tokens.push(ETHER_ADDRESS);
-        tokenMapping[ETHER_ADDRESS] = true;
-    }
-
-    /**
-     * Change the contract fee basis points
-     *
-     */
-    function changeContractFeeBasisPoints(
-        uint256 _newContractFeeBasisPoints
-    ) public onlyOwner checkInitialization {
-        CONTRACT_FEE_BASIS_POINTS = _newContractFeeBasisPoints;
-    }
-
-    /**
-     * Change the contract fee ramp up
-     *
-     */
-    function changeContractFeeRampUp(
-        uint256 _newContractFeeRampUp
-    ) public onlyOwner checkInitialization {
-        CONTRACT_FEE_RAMP_UP = _newContractFeeRampUp;
-    }
-
-    /**
-     * Change the token bridge address
-     *
-     */
-    function changeTokenBridge(
-        address _newBridgeAddress
-    ) public onlyOwner checkInitialization {
-        tokenBridge = _newBridgeAddress;
-    }
-
-    /**
-     * Change the layer-2 cross domain messenger
-     *
-     */
-    function changeXDomainMessenger(
-        address _newMessengerAddress
-    ) public onlyOwner checkInitialization {
-        messenger = _newMessengerAddress;
-    }
-
-    /**
-     * Add supported tokens to the contract
-     *
-     */
-    function addTokens(
-        address[] memory _tokens
-    ) public onlyOwner checkInitialization {
-        for(uint i = 0; i < _tokens.length; i++) {
-            // Add token to contract only if it doesn't already exist
-            if (!tokenMapping[_tokens[i]]) {
-                tokens.push(_tokens[i]);
-                tokenMapping[_tokens[i]] = true;
-            }
-        }
-    }
-
-    
-    /* private functions */
+    /* internal functions */
 
     /**
      * Update the Merkle Tree representation with the new node
@@ -312,7 +289,7 @@ contract BuddleSrcOptimism is Ownable {
      * @dev see https://etherscan.io/address/0x00000000219ab540356cbb839cbe05303d7705fa#code#L1
      */
     // Copied the logic from Ethereum PoS deposit contract
-    function updateMerkle(bytes32 _node) private {
+    function updateMerkle(bytes32 _node) internal {
         uint size = transferCount % MAX_DEPOSIT_COUNT;
         for (uint height = 0; height < MERKLE_TREE_DEPTH; height++) {
 
@@ -329,6 +306,25 @@ contract BuddleSrcOptimism is Ownable {
         // As the loop should always end prematurely with the `return` statement,
         // this code should be unreachable. We assert `false` just to be safe.
         assert(false);
+    }
+
+    /**
+     * Get the current merkle root stored in the contract
+     * @dev Taken from Ethereum's deposit contract
+     * @dev see https://etherscan.io/address/0x00000000219ab540356cbb839cbe05303d7705fa#code#L1
+     *
+     */
+    function getMerkleRoot() internal view checkInitialization returns (bytes32) {
+        bytes32 node;
+        uint size = transferCount % MAX_DEPOSIT_COUNT;
+        for (uint height = 0; height < MERKLE_TREE_DEPTH; height++) {
+            if ((size & 1) == 1)
+                node = sha256(abi.encodePacked(branch[height], node));
+            else
+                node = sha256(abi.encodePacked(node, zeroes[height]));
+            size /= 2;
+        }
+        return node;
     }
 
 }
