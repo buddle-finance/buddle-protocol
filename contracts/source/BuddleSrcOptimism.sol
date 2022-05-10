@@ -4,7 +4,6 @@ pragma solidity ^0.8.11;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@eth-optimism/contracts/L2/messaging/L2CrossDomainMessenger.sol";
 
 
@@ -46,8 +45,9 @@ contract BuddleSrcOptimism is Ownable {
 
     /* modifiers */
 
-    /*
-     *
+    /**
+     * Checks whether the message sender is the L2 messenger contract
+     * and whether the message originated from the deployed L1 token bridge
      *
      */
     modifier onlyBridgeContract() {
@@ -58,8 +58,8 @@ contract BuddleSrcOptimism is Ownable {
         _;
     }
 
-    /*
-     *
+    /**
+     * Checks whether the contract is initialized
      *
      */
     modifier checkInitialization() {
@@ -70,9 +70,15 @@ contract BuddleSrcOptimism is Ownable {
 
     /* external functions */
 
-    /* 
-     * 
+    /**
      * @notice previously `widthdraw`
+     * 
+     * Deposit funds into the contract to start the bridging process
+     * 
+     * @param _tokenAddress The contract address of the token being bridged
+     *  is address(0) if base token
+     * @param _destination The destination address for the bridged tokens
+     * @param _amount The amount of tokens to be bridged
      */
     function deposit(
         address _tokenAddress,
@@ -80,7 +86,7 @@ contract BuddleSrcOptimism is Ownable {
         uint256 _amount
     ) public payable checkInitialization returns(bytes32) {
 
-        // XXX Change logic to removing fee from amount sent?
+        // TODO: Change logic to removing fee from amount sent?
         // Calculate fee
         uint256 amountPlusFee = (_amount * (10000 + CONTRACT_FEE_BASIS_POINTS)) / 10000;
 
@@ -110,13 +116,15 @@ contract BuddleSrcOptimism is Ownable {
         transferCount += 1;
         updateMerkle(node);
         
-        emit TransferEvent(data, this, transferCount);
+        emit TransferEvent(data, this, transferCount); // TODO: remove `this`
         
         return node;
     }
 
-    /*
-     * Get the current merkle root from the contract
+    /**
+     * Get the current merkle root stored in the contract
+     * @dev Taken from Ethereum's deposit contract
+     * @dev see https://etherscan.io/address/0x00000000219ab540356cbb839cbe05303d7705fa#code#L1
      *
      */
     function getMerkleRoot() external view checkInitialization returns (bytes32) {
@@ -132,9 +140,9 @@ contract BuddleSrcOptimism is Ownable {
         return node;
     }
 
-    /*
-     *
-     *
+    /**
+     * Create a ticket before providing liquidity to the L1 bridge
+     * LP creates this ticket and provides liquidity to win the bounty
      */
     function createTicket() external checkInitialization returns(bytes32) {
         uint256[] memory _tokenAmounts;
@@ -208,9 +216,13 @@ contract BuddleSrcOptimism is Ownable {
 
     /* only owner functions */
 
-    /*
-     *
-     *
+    /**
+     * Initialize the contract with state variables
+     * 
+     * @param _feeBasisPoints The fee per transfer in basis points
+     * @param _feeRampUp The fee ramp up for each transfer
+     * @param _messenger The Layer-2 Cross Domain messenger contract
+     * @param _tokenBridge The Layer-1 Buddle Bridge contract
      */
     function initialize(
         uint256 _feeBasisPoints,
@@ -235,8 +247,8 @@ contract BuddleSrcOptimism is Ownable {
         tokenMapping[ETHER_ADDRESS] = true;
     }
 
-    /*
-     *
+    /**
+     * Change the contract fee basis points
      *
      */
     function changeContractFeeBasisPoints(
@@ -245,8 +257,8 @@ contract BuddleSrcOptimism is Ownable {
         CONTRACT_FEE_BASIS_POINTS = _newContractFeeBasisPoints;
     }
 
-    /*
-     *
+    /**
+     * Change the contract fee ramp up
      *
      */
     function changeContractFeeRampUp(
@@ -255,8 +267,8 @@ contract BuddleSrcOptimism is Ownable {
         CONTRACT_FEE_RAMP_UP = _newContractFeeRampUp;
     }
 
-    /*
-     *
+    /**
+     * Change the token bridge address
      *
      */
     function changeTokenBridge(
@@ -265,8 +277,8 @@ contract BuddleSrcOptimism is Ownable {
         tokenBridge = _newBridgeAddress;
     }
 
-    /*
-     *
+    /**
+     * Change the layer-2 cross domain messenger
      *
      */
     function changeXDomainMessenger(
@@ -275,8 +287,8 @@ contract BuddleSrcOptimism is Ownable {
         messenger = _newMessengerAddress;
     }
 
-    /*
-     *
+    /**
+     * Add supported tokens to the contract
      *
      */
     function addTokens(
@@ -294,9 +306,10 @@ contract BuddleSrcOptimism is Ownable {
     
     /* private functions */
 
-    /*
-     *
-     *
+    /**
+     * Update the Merkle Tree representation with the new node
+     * @dev Taken from Ethereum's deposit contract
+     * @dev see https://etherscan.io/address/0x00000000219ab540356cbb839cbe05303d7705fa#code#L1
      */
     // Copied the logic from Ethereum PoS deposit contract
     function updateMerkle(bytes32 _node) private {
@@ -319,6 +332,3 @@ contract BuddleSrcOptimism is Ownable {
     }
 
 }
-
-
-
