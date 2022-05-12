@@ -2,24 +2,24 @@
 pragma solidity ^0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@eth-optimism/contracts/L1/messaging/L1CrossDomainMessenger.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@eth-optimism/contracts/L1/messaging/L1StandardBridge.sol";
-import "@eth-optimism/contracts/L2/messaging/L2CrossDomainMessenger.sol";
+import "@eth-optimism/contracts/L1/messaging/L1CrossDomainMessenger.sol";
 
 
 contract BuddleBridgeOptimism {
-    address constant ETHER_ADDRESS = address(0);
+    using SafeERC20 for IERC20;
+
+    address constant BASE_TOKEN_ADDRESS = address(0);
+
+    address messenger; // Optimism L1 cross domain messenger address
+    address tokenBridge; // Optimism L2 standard bridge
+    address addressManager; // Optimism address manager
 
     address srcContract; // Address of deployed Source Side contract on Optimism
     address destContract; // Address of deployed Destination Side contract on Optimism
-    address messenger; // Optimism messenger address
-    address tokenBridge; // 
-    address libraryAddressManager; // Source & Destintion side rollup(Optimism) libAddressManager contract address
-
-    mapping(address => address) tokenToDest; // Mapping of source address to destination address
     address admin; // Address of the admin which can change the tokenToDest mapping
-
-    bool isInitalised = false;
+    mapping(address => address) tokenToDest; // Mapping of source address to destination address
 
     modifier isAdmin {
         require(msg.sender == admin, "You are not admin!");
@@ -31,31 +31,42 @@ contract BuddleBridgeOptimism {
         _;
     }
 
-    /// @notice Intialize the contract with variables
+    modifier isInitialized() {
+        require(srcContract != address(0), "Contract not initialized yet.");
+        _;
+    }
+
     function initialize(
         address _messenger, 
         address _tokenBridge, 
-        address _libraryAddressManager,
+        address _addressManager,
         address _admin
     ) public {
-        require(!isInitalised, "Contract already initialized!");
+        require(srcContract == address(0), "Contract already initialized!");
 
         messenger = _messenger;
         tokenBridge = _tokenBridge;
-        libraryAddressManager = _libraryAddressManager;
+        addressManager = _addressManager;
         admin = _admin;
-        isInitalised = true; 
     }
 
     /* TODO
      * Remove `require` in favor of checking for empty contract
      * and then changing the address for upgradability
      */
-    function setContracts(address _src, address _dest) public isAdmin {
-        require(srcContract == address(0) && destContract == address(0), 
-            "Contract address can only be set once currently");
+    function setContracts(
+        address _src,
+        address _dest
+    ) external isAdmin isInitialized {
         srcContract = _src;
         destContract = _dest;
+    }
+
+    function addTokenAddress(
+        address _src, 
+        address _dest
+    ) external isAdmin emptyPair(_src) isInitialized {
+        tokenToDest[_src] = _dest;
     }
 
     function claimBounty(
@@ -66,13 +77,13 @@ contract BuddleBridgeOptimism {
         uint256 _lastIdForTicket,
         bytes32 stateRoot
     ) external payable {
-        L1CrossDomainMessenger ovmL1CrossDomainMessenger;
-        ovmL1CrossDomainMessenger.initialize(libraryAddressManager);
+        L1CrossDomainMessenger _messenger;
+        _messenger.initialize(addressManager);
 
-        L1StandardBridge l1Bridge;
-        l1Bridge.initialize(messenger, tokenBridge);
+        L1StandardBridge _bridge;
+        _bridge.initialize(messenger, tokenBridge);
 
-        ovmL1CrossDomainMessenger.sendMessage(
+        _messenger.sendMessage(
             srcContract,
             abi.encodeWithSignature(
                 "confirmTicket(bytes32,address[],uint256[],uint256,uint256,bytes32,address)",
@@ -83,29 +94,26 @@ contract BuddleBridgeOptimism {
         );
 
         for(uint i=0; i < _tokens.length; i++) {
-            if(_tokens[i] == ETHER_ADDRESS) {
+            if(_tokens[i] == BASE_TOKEN_ADDRESS) {
                 require(msg.value >= _amounts[i], "Insufficient funds sent");
-                l1Bridge.depositETHTo(destContract, 1000000, "");
+                _bridge.depositETHTo(destContract, 1000000, bytes(""));
             } else {
                 IERC20 token = IERC20(_tokens[i]);
                 require(token.balanceOf(msg.sender) >= _amounts[i], "Insufficient funds sent");
                 token.approve(messenger, _amounts[i]);
                 
-                l1Bridge.depositERC20To(
+                _bridge.depositERC20To(
                     _tokens[i], 
                     tokenToDest[_tokens[i]], 
                     destContract, 
                     _amounts[i],
                     1000000, // Gas limit 
-                    "" // Data empty
+                    bytes("") // Data empty
                 );
             }
-            // replace to sha256 is issue occur
-            // TODO: Remove if unused
-            _ticket = sha256(abi.encodePacked(_ticket, _tokens[0], _amounts[0]));
         }
 
-        ovmL1CrossDomainMessenger.sendMessage(
+        _messenger.sendMessage(
             destContract,
             abi.encodeWithSignature(
                 "approveSrc(bytes32)",
@@ -113,10 +121,6 @@ contract BuddleBridgeOptimism {
             ),
             1000000
         );
-    }
-    
-    function addTokenAddress(address _src, address _dest) public isAdmin emptyPair(_src) {
-        tokenToDest[_src] = _dest;
     }
     
 }
