@@ -232,6 +232,20 @@ contract BuddleSrcOptimism is Ownable {
     }
 
     /**
+     * 
+     */
+    function generateProof(
+        bytes32 _ticket,
+        uint256 _id
+    ) external pure returns(bytes32[] memory) {
+        bytes32[] memory proof;
+
+        // TODO Call API for proof data
+
+        return proof;
+    }
+
+    /**
      * Create a ticket before providing liquidity to the L1 bridge
      * LP creates this ticket and provides liquidity to win the bounty
      */
