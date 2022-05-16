@@ -44,6 +44,7 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
     );
     event TicketEvent(
         bytes32 ticket,
+        uint chain_id,
         address[] tokens,
         uint256[] amounts,
         uint256 firstIdForTicket,
@@ -267,6 +268,7 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
         // _ticket, _tokens, _tokenAmounts, _firstTransferInTicket, _lastTransferInTicket, _stateRoot
         emit TicketEvent(
             _ticket,
+            _chain,
             tokens,
             _tokenAmounts,
             lastConfirmedTransfer[_chain],
