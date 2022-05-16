@@ -44,6 +44,17 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
         _;
     }
 
+    /**
+     * Checks whether a destination contract exists for the given chain id
+     *
+     */
+    modifier supportedChain(uint _chain) {
+        require(buddleBridge[_chain] != address(0), 
+            "A destination contract on the desired chain does not exist yet"
+        );
+        _;
+    }
+
     /* onlyOwner functions */
 
     function initialize(
@@ -70,6 +81,23 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
         address _l1TokenAddress 
     ) external onlyOwner emptyPair(_l2TokenAddress) checkInitialization {
         tokenMap[_l2TokenAddress] = _l1TokenAddress;
+    }
+
+    function addBridge(
+        uint _chain,
+        address _contract
+    ) external onlyOwner checkInitialization {
+        require(buddleBridge[_chain] == address(0),
+            "A Buddle Bridge Contract already exists for given chain"
+        );
+        buddleBridge[_chain] = _contract;
+    }
+
+    function updateBridge(
+        uint _chain,
+        address _contract
+    ) external onlyOwner checkInitialization supportedChain(_chain) {
+        buddleBridge[_chain] = _contract;
     }
 
     /* other functions */

@@ -32,6 +32,22 @@ interface IBuddleBridge {
         address _l2TokenAddress,
         address _l1TokenAddress 
     ) external;
+
+    /**
+     *
+     */
+    function addBridge(
+        uint _chain,
+        address _contract
+    ) external;
+
+    /**
+     *
+     */
+    function updateBridge(
+        uint _chain,
+        address _contract
+    ) external;
     
     /**
      * Claim the bounty for the current pool. A ticket must be emitted prior to this function.
