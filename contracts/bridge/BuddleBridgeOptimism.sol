@@ -25,6 +25,7 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
 
     mapping(address => address) tokenMap; // l2 token address => l1 token address
     mapping(uint => address) buddleBridge; // Chain ID => Buddle Bridge Contract Address
+    mapping(address => bool) knownBridges; // Buddle Bridge Contract Address => true
 
     /** Modifiers */
 
@@ -50,8 +51,17 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
      */
     modifier supportedChain(uint _chain) {
         require(buddleBridge[_chain] != address(0), 
-            "A destination contract on the desired chain does not exist yet"
+            "A bridge contract for the desired chain does not exist yet"
         );
+        _;
+    }
+
+    /**
+     *
+     *
+     */
+    modifier onlyKnownBridge() {
+        require(knownBridges[msg.sender], "Unauthorized call from unknown contract");
         _;
     }
 
@@ -63,9 +73,13 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
         address _addressManager
     ) external {
         require(messenger == address(0), "Contract already initialized!");
+
         messenger = _messenger;
         tokenBridge = _tokenBridge;
         addressManager = _addressManager;
+
+        buddleBridge[CHAIN] = address(this);
+        knownBridges[address(this)] = true;
     }
 
     function setContracts(
@@ -91,22 +105,26 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
             "A Buddle Bridge Contract already exists for given chain"
         );
         buddleBridge[_chain] = _contract;
+        knownBridges[_contract] = true;
     }
 
     function updateBridge(
         uint _chain,
         address _contract
     ) external onlyOwner checkInitialization supportedChain(_chain) {
+        knownBridges[buddleBridge[_chain]] = false;
         buddleBridge[_chain] = _contract;
+        knownBridges[_contract] = true;
     }
 
-    /* other functions */
+    /* public functions */
 
     function claimBounty(
         bytes32 _ticket,
         uint _chain,
         address[] memory _tokens,
         uint256[] memory _amounts,
+        uint256[] memory _bounty,
         uint256 _firstIdForTicket,
         uint256 _lastIdForTicket,
         bytes32 stateRoot
@@ -117,26 +135,60 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
         _messenger.sendMessage(
             srcContract,
             abi.encodeWithSignature(
-                "confirmTicket(bytes32, uint, address[], uint256[], uint256, uint256, bytes32, address)",
-                _ticket, _chain, _tokens, _amounts, _firstIdForTicket, _lastIdForTicket, stateRoot, msg.sender
+                "confirmTicket(bytes32, uint, address[], uint256[], uint256[], uint256, uint256, bytes32, address)",
+                _ticket, _chain, _tokens, _amounts, _bounty, _firstIdForTicket, _lastIdForTicket, stateRoot, msg.sender
             ),
             1000000
         );
 
-        if (_chain == CHAIN) {
-            transferFunds(_tokens, _amounts);
-            approveRoot(stateRoot);
-        } else {
+        // Call the appropriate bridge's transfer and approve methods
+        if (_chain != CHAIN) {
             IBuddleBridge _bridge = IBuddleBridge(buddleBridge[_chain]);
             _bridge.transferFunds(_tokens, _amounts);
             _bridge.approveRoot(stateRoot);
+            return;
         }
+
+        L1StandardBridge stdBridge;
+        stdBridge.initialize(messenger, tokenBridge);
+
+        for(uint i=0; i < _tokens.length; i++) {
+            if(_tokens[i] == BASE_TOKEN_ADDRESS) {
+                require(msg.value >= _amounts[i], "Insufficient funds sent");
+                stdBridge.depositETHTo(destContract, 1000000, bytes(""));
+            } else {
+                IERC20 token = IERC20(_tokens[i]);
+                require(token.balanceOf(msg.sender) >= _amounts[i], "Insufficient funds sent");
+                token.approve(messenger, _amounts[i]);
+                
+                stdBridge.depositERC20To(
+                    tokenMap[_tokens[i]], // L1 token address
+                    _tokens[i], // L2 token address
+                    destContract, // to address
+                    _amounts[i], // amount to be transferred
+                    1000000, // Gas limit 
+                    bytes("") // Data empty
+                );
+            }
+        }
+        
+        _messenger.sendMessage(
+            destContract,
+            abi.encodeWithSignature(
+                "approveStateRoot(uint, bytes32)",
+                CHAIN, stateRoot
+            ),
+            1000000
+        );
+
     }
 
     function transferFunds(
         address[] memory _tokens,
         uint256[] memory _amounts
-    ) public payable checkInitialization {
+    ) external payable 
+      checkInitialization
+      onlyKnownBridge {
 
         L1StandardBridge _bridge;
         _bridge.initialize(messenger, tokenBridge);
@@ -163,7 +215,11 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
 
     }
 
-    function approveRoot(bytes32 _root) public checkInitialization {
+    function approveRoot(
+        bytes32 _root
+    ) external 
+      checkInitialization
+      onlyKnownBridge {
 
         L1CrossDomainMessenger _messenger;
         _messenger.initialize(addressManager);

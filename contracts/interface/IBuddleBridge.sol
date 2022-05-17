@@ -55,6 +55,7 @@ interface IBuddleBridge {
      * @param _chain The chain ID for the destination contract
      * @param _tokens List of tokens (L2 addresses) supported by Buddle Source
      * @param _amounts List of amounts corresponding to _tokens
+     * @param _bounty List of bounty amounts corresponding to _tokens
      * @param _firstIdForTicket The first transfer id included in _ticket
      * @param _lastIdForTicket The last transfer id included in _ticket
      * @param stateRoot State root emitted with the corresponding _ticket
@@ -64,6 +65,7 @@ interface IBuddleBridge {
         uint _chain,
         address[] memory _tokens,
         uint256[] memory _amounts,
+        uint256[] memory _bounty,
         uint256 _firstIdForTicket,
         uint256 _lastIdForTicket,
         bytes32 stateRoot
