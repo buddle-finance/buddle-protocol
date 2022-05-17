@@ -141,51 +141,16 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
             1000000
         );
 
-        // Call the appropriate bridge's transfer and approve methods
-        if (_chain != CHAIN) {
-            IBuddleBridge _bridge = IBuddleBridge(buddleBridge[_chain]);
-            _bridge.transferFunds(_tokens, _amounts);
-            _bridge.approveRoot(stateRoot);
-            return;
-        }
-
-        L1StandardBridge stdBridge;
-        stdBridge.initialize(messenger, tokenBridge);
-
-        for(uint i=0; i < _tokens.length; i++) {
-            if(_tokens[i] == BASE_TOKEN_ADDRESS) {
-                require(msg.value >= _amounts[i], "Insufficient funds sent");
-                stdBridge.depositETHTo(destContract, 1000000, bytes(""));
-            } else {
-                IERC20 token = IERC20(_tokens[i]);
-                require(token.balanceOf(msg.sender) >= _amounts[i], "Insufficient funds sent");
-                token.approve(messenger, _amounts[i]);
-                
-                stdBridge.depositERC20To(
-                    tokenMap[_tokens[i]], // L1 token address
-                    _tokens[i], // L2 token address
-                    destContract, // to address
-                    _amounts[i], // amount to be transferred
-                    1000000, // Gas limit 
-                    bytes("") // Data empty
-                );
-            }
-        }
-        
-        _messenger.sendMessage(
-            destContract,
-            abi.encodeWithSignature(
-                "approveStateRoot(uint, bytes32)",
-                CHAIN, stateRoot
-            ),
-            1000000
-        );
+        IBuddleBridge _bridge = IBuddleBridge(buddleBridge[_chain]);
+        _bridge.transferFunds{value: msg.value}(_tokens, _amounts, msg.sender);
+        _bridge.approveRoot(stateRoot);
 
     }
 
     function transferFunds(
         address[] memory _tokens,
-        uint256[] memory _amounts
+        uint256[] memory _amounts,
+        address bountySeeker
     ) external payable 
       checkInitialization
       onlyKnownBridge {
@@ -200,6 +165,8 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
             } else {
                 IERC20 token = IERC20(_tokens[i]);
                 require(token.balanceOf(msg.sender) >= _amounts[i], "Insufficient funds sent");
+                token.safeTransferFrom(bountySeeker, address(this), _amounts[i]);
+                
                 token.approve(messenger, _amounts[i]);
                 
                 _bridge.depositERC20To(

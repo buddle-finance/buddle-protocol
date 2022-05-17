@@ -77,7 +77,8 @@ interface IBuddleBridge {
      */
     function transferFunds(
         address[] memory _tokens,
-        uint256[] memory _amounts
+        uint256[] memory _amounts,
+        address boundtySeeker
     ) external payable;
 
     /**
