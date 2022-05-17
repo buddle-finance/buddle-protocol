@@ -17,6 +17,7 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
     address buddleBridge; // The bridge deployed on the Layer-1 chain
 
     mapping(uint => mapping(uint256 => address payable)) public liquidityOwners;
+    mapping(uint => mapping(bytes32 => bool)) public liquidityHashes;
     mapping(uint => mapping(uint256 => uint256)) public transferFee;
     mapping(uint => mapping(bytes32 => bool)) public approvedRoot;
 
@@ -132,9 +133,11 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
             payable(transferData.destination).transfer(amountMinusLPFee);
         } else {
             IERC20 token = IERC20(transferData.tokenAddress);
-            token.safeTransferFrom(msg.sender, transferData.destination, amountMinusLPFee);
+            token.safeTransferFrom(msg.sender, address(this), amountMinusLPFee);
+            token.safeTransfer(transferData.destination, amountMinusLPFee);
         }
         liquidityOwners[sourceChain][transferID] = payable(msg.sender);
+        liquidityHashes[sourceChain][_generateNode(transferData, transferID)] = true;
 
         emit TransferCompleted(transferData, transferID, sourceChain, msg.sender);
     }
@@ -154,6 +157,14 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
         require(_verifyProof(_node, _proof, _root), "Invalid root formed from proof");
         require(approvedRoot[sourceChain][_root], "Unknown root provided");
 
+        // Check if hashed node is known in case of owner existance
+        // ie, if the deposit() transferData does not match withdraw() transferData
+        //  reset liquidity owner for the transfer id
+        if(liquidityOwners[sourceChain][transferID] != address(0)
+            && !liquidityHashes[sourceChain][_node]) {
+            liquidityOwners[sourceChain][transferID] = payable(address(0));
+        }
+
         address claimer = liquidityOwners[sourceChain][transferID] == address(0)? 
             transferData.destination : liquidityOwners[sourceChain][transferID];
         
@@ -168,6 +179,9 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
             token.safeTransferFrom(address(this), claimer, transferData.amount);
         }
 
+        liquidityOwners[sourceChain][transferID] = payable(address(this));
+        liquidityHashes[sourceChain][_node] = false;
+
         emit WithdrawalEvent(transferData, transferID, sourceChain, claimer);
     }
 
@@ -180,15 +194,10 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
 
     /* internal functions */
 
-    /**
-     * Verify that the transfer data provided matches the hash provided
-     *
-     */
-    function _verifyNode(
+    function _generateNode(
         TransferData memory _transferData, 
-        uint256 transferID, 
-        bytes32 _node
-    ) internal view returns (bool) {
+        uint256 transferID
+    ) internal view returns (bytes32 node) {
         bytes32 transferDataHash = sha256(abi.encodePacked(
             _transferData.tokenAddress,
             _transferData.destination,
@@ -198,12 +207,23 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
             _transferData.feeRampup,
             _transferData.chain
         ));
-        bytes32 node = sha256(abi.encodePacked(
+        node = sha256(abi.encodePacked(
             transferDataHash, 
             sha256(abi.encodePacked(address(this))),
             sha256(abi.encodePacked(transferID))
         ));
-        return node == _node;
+    }
+
+    /**
+     * Verify that the transfer data provided matches the hash provided
+     *
+     */
+    function _verifyNode(
+        TransferData memory _transferData, 
+        uint256 transferID, 
+        bytes32 _node
+    ) internal view returns (bool) {
+        return _generateNode(_transferData, transferID) == _node;
     }
     
     /**
