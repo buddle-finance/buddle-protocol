@@ -21,3 +21,10 @@
 2. Wait for ticket to be confirmed
 3. Wait for funds to bridge
 4. Call `withdraw()` on the Destination Contract to receive full amount
+
+## Deployed Contracts
+
+**Optimsim Kovan Source** 0xf65D533246e28Ccde202a446271FC5f0Fc1b9A29
+**Optimsim Kovan Destination** 0xB3eeb48D47D7361A329B0337C47ebDcc18901A0c
+
+**Kovan Bridge** 0x3ec618E37e00E19bc2b139D0C3aa02feFe692E28
