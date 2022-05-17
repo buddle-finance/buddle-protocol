@@ -16,41 +16,64 @@ interface IBuddleDestination {
     /**
      * Initialize the contract with state variables
      * 
-     * @param _messenger Optimism's Layer-2 Cross Domain messenger contract
-     * @param _tokenBridge Optimism's Layer-2 Standard Token Bridge contract
+     * @param _messenger Layer-2 Cross Domain messenger contract
+     * @param _tokenBridge Buddle Bridge contract on Layer-1
      */
     function initialize(
         address _messenger,
         address _tokenBridge
     ) external;
 
-    /// @notice buy function
-    /// @notice if the owner is zero, anyone can call this function paying the required tokens
-    /// @notice and claiming ownership
     /**
+     * Change the buddle bridge address
      *
+     */
+    function changeBuddleBridge(
+        address _newBridgeAddress
+    ) external;
+
+    /**
+     * Change the layer-2 cross domain messenger
      *
+     */
+    function changeXDomainMessenger(
+        address _newMessengerAddress
+    ) external;
+    
+    /**
+     * Deposit funds into the contract to transfer to the destination of the transfer.
+     * If no owner exists, anyone may call this function to complete a transfer
+     * and claim ownership of the LP fee
+     *
+     * @param transferData Transfer Data of the transfer emitted under TransferEvent
+     * @param transferID Transfer ID of the transfer emitted under TransferEvent
+     * @param sourceChain The chain ID for the source blockchain of transfer
      */
     function deposit(
         TransferData memory transferData, 
-        uint256 transferID
+        uint256 transferID,
+        uint sourceChain
     ) external payable;
 
-    /// @notice withdraw function
-    /// @notice if the contract has enough balance, the owner(or the destination if the owner is zero)
-    /// @notice can call this function, the function will confirm the transfer with the state root
-    /// @notice and if the transfer is confirmed, the transfer value will be transfered to the 
-    /// @notice destination address
-    /// @param _proof should be calculated offline
     /**
+     * This function is called under two cases,
+     * (i) A LP calls this function after funds have been bridged
+     * (ii) If no LP exists, the destination of the transfer calls this to claim bridged funds
      *
-     *
+     * @param transferData Transfer Data of the transfer emitted under TransferCreated event
+     * @param transferID Transfer ID of the transfer emitted under TransferCreated event
+     * @param sourceChain The chain ID for the source blockchain of transfer
+     * @param _node Hash of the transfer data emitted under TransferCreated event
+     * @param _proof Path from node to root. Should be calculated offline
+     * @param _root State root emitted under TicketCreated event
      */
     function withdraw(
         TransferData memory transferData,
         uint256 transferID,
+        uint sourceChain,
         bytes32 _node,
-        bytes32[] memory _proof
+        bytes32[] memory _proof,
+        bytes32 _root
     ) external;
 
     /**

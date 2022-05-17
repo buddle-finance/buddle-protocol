@@ -14,16 +14,26 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
     address constant BASE_TOKEN_ADDRESS = address(0);
 
     address messenger; // Address of deployed L2CrossDomainMessenger contract on Optimism
-    address tokenBridge; // The bridge deployed on the Layer-1 chain
+    address buddleBridge; // The bridge deployed on the Layer-1 chain
 
-    mapping(uint256 => address payable) liquidityOwners;
-    mapping(uint256 => uint256) transferFee;
-    mapping(uint => mapping(bytes32 => bool)) approvedRoot;
+    mapping(uint => mapping(uint256 => address payable)) public liquidityOwners;
+    mapping(uint => mapping(uint256 => uint256)) public transferFee;
+    mapping(uint => mapping(bytes32 => bool)) public approvedRoot;
+
+    /* events */
 
     event TransferCompleted(
-        TransferData data,
-        uint256 _id,
+        TransferData transferData,
+        uint256 transferID,
+        uint sourceChain,
         address liquidityProvider
+    );
+
+    event WithdrawalEvent(
+        TransferData transferData,
+        uint256 transferID,
+        uint sourceChain,
+        address claimer
     );
 
 
@@ -37,7 +47,7 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
     modifier onlyBridgeContract() {
         require(
             msg.sender == address(messenger)
-            && L2CrossDomainMessenger(messenger).xDomainMessageSender() == tokenBridge
+            && L2CrossDomainMessenger(messenger).xDomainMessageSender() == buddleBridge
         );
         _;
     }
@@ -52,16 +62,44 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
         _;
     }
 
+    /**
+     * Checks that the caller is either the owner of liquidity or the destination of a transfer
+     *
+     */
+    modifier validOwner(
+        uint _chain,
+        uint256 _id,
+        address _destination
+    ) {
+        require( liquidityOwners[_chain][_id] == msg.sender ||
+            (liquidityOwners[_chain][_id] == address(0) && _destination == msg.sender),
+            "Can only be called by owner or destination if there is no owner."
+        );
+        _;
+    }
+
     /* onlyOwner functions */
 
     function initialize(
         address _messenger,
-        address _tokenBridge
+        address _buddleBridge
     ) external onlyOwner {
         require(messenger == address(0), "contract already initialized!");
         
         messenger = _messenger;
-        tokenBridge = _tokenBridge;
+        buddleBridge = _buddleBridge;
+    }
+
+    function changeBuddleBridge(
+        address _newBridgeAddress
+    ) external onlyOwner checkInitialization {
+        buddleBridge = _newBridgeAddress;
+    }
+
+    function changeXDomainMessenger(
+        address _newMessengerAddress
+    ) external onlyOwner checkInitialization {
+        messenger = _newMessengerAddress;
     }
 
     /* other functions */
@@ -69,51 +107,55 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
     function changeOwner(
         TransferData memory _data,
         uint256 _transferID,
+        uint _chain,
         address payable _owner
-    ) external checkInitialization {
-        require( (liquidityOwners[_transferID] == msg.sender) ||
-            (liquidityOwners[_transferID] == address(0) && _data.destination == msg.sender),
-        "You are not authorized to call this function!");
-        liquidityOwners[_transferID] = _owner;
+    ) external 
+      checkInitialization
+      validOwner(_chain, _transferID, _data.destination) {
+        liquidityOwners[_chain][_transferID] = _owner;
     }
     
     function deposit(
         TransferData memory transferData, 
-        uint256 transferID
+        uint256 transferID,
+        uint sourceChain
     ) external payable checkInitialization {
-        require(liquidityOwners[transferID] == address(0), "Owner is non zero");
+        require(liquidityOwners[sourceChain][transferID] == address(0),
+            "A Liquidity Provider already exists for this transfer"
+        );
         
-        transferFee[transferID] = getLPFee(transferData, block.timestamp);
-        uint256 transferAmount = transferData.amount - transferFee[transferID];
+        transferFee[sourceChain][transferID] = getLPFee(transferData, block.timestamp);
+        uint256 amountMinusLPFee = transferData.amount - transferFee[sourceChain][transferID];
 
         if (transferData.tokenAddress == BASE_TOKEN_ADDRESS) {
-            require(msg.value >= transferAmount, "Not enough tokens sent");
-            payable(transferData.destination).transfer(transferAmount);
+            require(msg.value >= amountMinusLPFee, "Not enough tokens sent");
+            payable(transferData.destination).transfer(amountMinusLPFee);
         } else {
             IERC20 token = IERC20(transferData.tokenAddress);
-            token.safeTransferFrom(msg.sender, transferData.destination, transferAmount);
+            token.safeTransferFrom(msg.sender, transferData.destination, amountMinusLPFee);
         }
-        liquidityOwners[transferID] = payable(msg.sender);
+        liquidityOwners[sourceChain][transferID] = payable(msg.sender);
 
-        emit TransferCompleted(transferData, transferID, liquidityOwners[transferID]);
+        emit TransferCompleted(transferData, transferID, sourceChain, msg.sender);
     }
 
     function withdraw(
         TransferData memory transferData,
         uint256 transferID,
+        uint sourceChain,
         bytes32 _node,
-        bytes32[] memory _proof
-    ) external checkInitialization {
-        require( liquidityOwners[transferID] == msg.sender ||
-            (liquidityOwners[transferID] == address(0) && transferData.destination == msg.sender),
-            "Can only be called by owner or destination if there is no owner."
-        );
-        require(_verify(transferData, transferID, _node, _proof), 
-            "Unknown root formed from proof"
-        );
+        bytes32[] memory _proof,
+        bytes32 _root
+    ) external 
+      checkInitialization
+      validOwner(sourceChain, transferID, transferData.destination) {
 
-        address claimer = liquidityOwners[transferID] == address(0)? 
-            transferData.destination : liquidityOwners[transferID];
+        require(_verifyNode(transferData, transferID, _node), "Invalid node fromed");
+        require(_verifyProof(_node, _proof, _root), "Invalid root formed from proof");
+        require(approvedRoot[sourceChain][_root], "Unknown root provided");
+
+        address claimer = liquidityOwners[sourceChain][transferID] == address(0)? 
+            transferData.destination : liquidityOwners[sourceChain][transferID];
         
         if(transferData.tokenAddress == BASE_TOKEN_ADDRESS) {
             require(address(this).balance >= transferData.amount,
@@ -123,11 +165,10 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
 
         } else {
             IERC20 token = IERC20(transferData.tokenAddress);
-            require(token.balanceOf(address(this)) >= transferData.amount,
-                "Contract doesn't have enough funds yet."
-            );
-            token.transferFrom(address(this), claimer, transferData.amount);
-        }       
+            token.safeTransferFrom(address(this), claimer, transferData.amount);
+        }
+
+        emit WithdrawalEvent(transferData, transferID, sourceChain, claimer);
     }
 
     function approveStateRoot(
@@ -138,20 +179,16 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
     }
 
     /* internal functions */
-    
+
     /**
-     * Verify (i) The transfer data provided matches the hash provided;
-     * (ii) The root formed from the node and proof is an approved root
+     * Verify that the transfer data provided matches the hash provided
      *
      */
-    function _verify(
+    function _verifyNode(
         TransferData memory _transferData, 
         uint256 transferID, 
-        bytes32 _node,
-        bytes32[] memory _proof
+        bytes32 _node
     ) internal view returns (bool) {
-
-        // Check data integrity
         bytes32 transferDataHash = sha256(abi.encodePacked(
             _transferData.tokenAddress,
             _transferData.destination,
@@ -166,17 +203,26 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
             sha256(abi.encodePacked(address(this))),
             sha256(abi.encodePacked(transferID))
         ));
-        require(node == _node, "Invalid node formed");
-
-        // Build root
-        bytes32 value = node;
+        return node == _node;
+    }
+    
+    /**
+     * Verify that the root formed from the node and proof is the provided root
+     *
+     */
+    function _verifyProof(
+        bytes32 _node,
+        bytes32[] memory _proof,
+        bytes32 _root
+    ) internal pure returns (bool) {
+        bytes32 value = _node;
         for(uint n = 0; n < _proof.length; n++) {
             if(((n / (2**n)) % 2) == 1)
                 value = sha256(abi.encodePacked(_proof[n], value));
             else
                 value = sha256(abi.encodePacked(value, _proof[n]));
         }
-        return approvedRoot[_transferData.chain][value];
+        return (value == _root);
     }
 
     /**
