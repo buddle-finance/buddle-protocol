@@ -16,6 +16,7 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
     uint constant public MERKLE_TREE_DEPTH = 32;
     uint constant public MAX_DEPOSIT_COUNT = 2 ** MERKLE_TREE_DEPTH - 1;
     address constant BASE_TOKEN_ADDRESS = address(0);
+    uint constant public CHAIN = 69;
     
     uint256 public CONTRACT_FEE_BASIS_POINTS;
     uint256 public CONTRACT_FEE_RAMP_UP;
@@ -28,6 +29,8 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
     
     address[] tokens;
     mapping(address => bool) public tokenMapping;
+    mapping(uint => mapping(address => uint256)) public tokenAmounts;
+    mapping(uint => mapping(address => uint256)) public bountyAmounts;
 
     mapping(uint => uint256) public transferCount;
     mapping(uint => uint256) public lastConfirmedTransfer;
@@ -37,18 +40,26 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
     mapping(uint => bytes32[MERKLE_TREE_DEPTH]) private branch;
     
     /* events */
-    event TransferEvent(
-        TransferData data,
+    event TransferStarted(
+        TransferData transferData,
+        uint256 transferID,
         bytes32 node,
-        uint256 id
+        uint srcChain
     );
-    event TicketEvent(
+    
+    event TicketCreated(
         bytes32 ticket,
-        uint chain_id,
+        uint destChain,
         address[] tokens,
         uint256[] amounts,
+        uint256[] bounty,
         uint256 firstIdForTicket,
         uint256 lastIdForTicket,
+        bytes32 stateRoot
+    );
+
+    event TicketConfirmed(
+        bytes32 ticket,
         bytes32 stateRoot
     );
 
@@ -188,18 +199,17 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
         address _tokenAddress,
         uint256 _amount,
         address _destination,
-        uint _chain
+        uint destChain
     ) external payable 
       checkInitialization
-      supportedChain(_chain)
+      supportedChain(destChain)
       supportedToken(_tokenAddress)
       returns(bytes32) {
 
-        require(transferCount[_chain] < MAX_DEPOSIT_COUNT,
-            "Maximum deposit count reached for given destination"
+        require(transferCount[destChain] < MAX_DEPOSIT_COUNT,
+            "Maximum deposit count reached for given destination chain"
         );
 
-        // TODO: Change logic to removing fee from amount sent?
         // Calculate fee
         uint256 amountPlusFee = (_amount * (10000 + CONTRACT_FEE_BASIS_POINTS)) / 10000;
 
@@ -211,15 +221,17 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
         data.fee = amountPlusFee - data.amount;
         data.startTime = block.timestamp;
         data.feeRampup = CONTRACT_FEE_RAMP_UP;
-        data.chain = _chain;
+        data.chain = destChain;
         
-        // TODO Have a separate private function for this common check
         if (data.tokenAddress == address(0)) {
             require(msg.value >= amountPlusFee, "Insufficient amount");
         } else {
             IERC20 token = IERC20(data.tokenAddress);
             token.safeTransferFrom(msg.sender, address(this), amountPlusFee);
         }
+        transferCount[destChain] += 1;
+        tokenAmounts[destChain][_tokenAddress] += data.amount;
+        bountyAmounts[destChain][_tokenAddress] += data.fee;
         
         // Hash Transfer Information and store in tree
         bytes32 transferDataHash = sha256(abi.encodePacked(
@@ -233,46 +245,39 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
         ));
         bytes32 node = sha256(abi.encodePacked(
             transferDataHash,
-            sha256(abi.encodePacked(buddleDestination[_chain])),
-            sha256(abi.encodePacked(transferCount[_chain]))
+            sha256(abi.encodePacked(buddleDestination[destChain])),
+            sha256(abi.encodePacked(transferCount[destChain]))
         ));
-
-        transferCount[_chain] += 1;
-        updateMerkle(node, _chain);
+        updateMerkle(destChain, node);
         
-        // emit TransferEvent(data, this, transferCount); // TODO: remove `this`
-        emit TransferEvent(data, node, transferCount[_chain]);
+        emit TransferStarted(data, transferCount[destChain], node, CHAIN);
         
         return node;
     }
 
-    function createTicket(uint _chain) external checkInitialization returns(bytes32) {
+    function createTicket(uint destChain) external checkInitialization returns(bytes32) {
         uint256[] memory _tokenAmounts;
+        uint256[] memory _bountyAmounts;
         bytes32 _ticket;
         for (uint n = 0; n < tokens.length; n++) {
-            if(tokens[n] == BASE_TOKEN_ADDRESS) {
-                _tokenAmounts[n] = address(this).balance;
-            } else {
-                IERC20 _token = IERC20(tokens[n]);
-                _tokenAmounts[n] = _token.balanceOf(address(this));      
-            }
-            _ticket = sha256(abi.encodePacked(_ticket, tokens[n], _tokenAmounts[n]));
+            _tokenAmounts[n] = tokenAmounts[destChain][tokens[n]];
+            _bountyAmounts[n] = bountyAmounts[destChain][tokens[n]];
+            _ticket = sha256(abi.encodePacked(_ticket, tokens[n], _tokenAmounts[n]+_bountyAmounts[n]));
         }
-        bytes32 _root = getMerkleRoot(_chain);
-        _ticket = sha256(abi.encodePacked(_ticket, lastConfirmedTransfer[_chain]));
-        _ticket = sha256(abi.encodePacked(_ticket, transferCount[_chain]));
+        bytes32 _root = getMerkleRoot(destChain);
+        _ticket = sha256(abi.encodePacked(_ticket, lastConfirmedTransfer[destChain]));
+        _ticket = sha256(abi.encodePacked(_ticket, transferCount[destChain]));
         _ticket = sha256(abi.encodePacked(_ticket, _root));
-        tickets[_chain][_ticket] = true;
+        tickets[destChain][_ticket] = true;
 
-        // Maps to `confirmTicket(bytes32, address[], uint256[], uint256, uint256, bytes32, ...)`
-        // _ticket, _tokens, _tokenAmounts, _firstTransferInTicket, _lastTransferInTicket, _stateRoot
-        emit TicketEvent(
+        emit TicketCreated(
             _ticket,
-            _chain,
+            destChain,
             tokens,
             _tokenAmounts,
-            lastConfirmedTransfer[_chain],
-            transferCount[_chain],
+            _bountyAmounts,
+            lastConfirmedTransfer[destChain],
+            transferCount[destChain],
             _root
         );
         
@@ -281,11 +286,12 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
 
     function confirmTicket(
         bytes32 _ticket,
-        uint _chain,
+        uint destChain,
         address[] memory _tokens,
-        uint256[] memory _tokenAmounts, 
+        uint256[] memory _tokenAmounts,
+        uint256[] memory _bountyAmounts,
         uint256 _firstTransferInTicket, 
-        uint256 _lastTransferInTicket, 
+        uint256 _lastTransferInTicket,
         bytes32 _stateRoot,
         address payable _provider
     ) external checkInitialization onlyBridgeContract {
@@ -293,28 +299,31 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
         // Build ticket to check validity of data
         bytes32 ticket;
         for (uint n = 0; n < _tokens.length; n++) {
-            ticket = sha256(abi.encodePacked(ticket, _tokens[n], _tokenAmounts[n]));
+            ticket = sha256(abi.encodePacked(ticket, _tokens[n], _tokenAmounts[n]+_bountyAmounts[n]));
         }
         ticket = sha256(abi.encodePacked(ticket, _firstTransferInTicket));
         ticket = sha256(abi.encodePacked(ticket, _lastTransferInTicket));
         ticket = sha256(abi.encodePacked(ticket, _stateRoot));
-        require(ticket == _ticket, "Invalid ticket sent");
-        require(tickets[_chain][_ticket], "Ticket unknown to contract");
+        require(ticket == _ticket, "Invalid ticket formed");
+        require(tickets[destChain][_ticket], "Ticket unknown to contract");
 
-        lastConfirmedTransfer[_chain] = _lastTransferInTicket;
-        tickets[_chain][_ticket] = false; // Reset to prevent double spend
+        lastConfirmedTransfer[destChain] = _lastTransferInTicket;
+        tickets[destChain][_ticket] = false; // Reset to prevent double spend
 
         // Send funds mentioned in ticket to token bridge liquidity provider
         // TODO: Send funds to L2 standard bridge
-
         for (uint n = 0; n < _tokens.length; n++) {
             if(tokens[n] == BASE_TOKEN_ADDRESS) {
-                _provider.transfer(_tokenAmounts[n]);
+                _provider.transfer(_tokenAmounts[n]+_bountyAmounts[n]);
             } else {
                 IERC20 token = IERC20(_tokens[n]);
-                token.safeTransfer(_provider, _tokenAmounts[n]);
+                token.safeTransfer(_provider, _tokenAmounts[n]+_bountyAmounts[n]);
             }
+            tokenAmounts[destChain][tokens[n]] -= _tokenAmounts[n];
+            bountyAmounts[destChain][tokens[n]] -= _bountyAmounts[n];
         }
+
+        emit TicketConfirmed(_ticket, _stateRoot);
     }
 
     /* internal functions */
@@ -324,7 +333,7 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
      * @dev Taken from Ethereum's deposit contract
      * @dev see https://etherscan.io/address/0x00000000219ab540356cbb839cbe05303d7705fa#code#L1
      */
-    function updateMerkle(bytes32 _node, uint _chain) internal {
+    function updateMerkle(uint _chain, bytes32 _node) internal {
         uint size = transferCount[_chain] % MAX_DEPOSIT_COUNT;
         for (uint height = 0; height < MERKLE_TREE_DEPTH; height++) {
 

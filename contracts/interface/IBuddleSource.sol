@@ -132,6 +132,7 @@ interface IBuddleSource {
      * @param _chain The chain ID for the destination blockchain
      * @param _tokens The token addresses included in the ticket
      * @param _tokenAmounts The token amounts included in the ticket
+     * @param _bountyAmounts The bounty amounts included in the ticket
      * @param _firstTransferInTicket The initial transfer ID included in ticket
      * @param _lastTransferInTicket The final transfer ID included in ticket
      * @param _stateRoot The state root included in ticket
@@ -141,7 +142,8 @@ interface IBuddleSource {
         bytes32 _ticket,
         uint _chain,
         address[] memory _tokens,
-        uint256[] memory _tokenAmounts, 
+        uint256[] memory _tokenAmounts,
+        uint256[] memory _bountyAmounts,
         uint256 _firstTransferInTicket, 
         uint256 _lastTransferInTicket, 
         bytes32 _stateRoot,
