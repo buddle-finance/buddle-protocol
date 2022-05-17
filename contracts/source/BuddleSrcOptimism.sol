@@ -27,7 +27,7 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
     address buddleBridge;  // L1 blockchain Token Bridge contract address
     mapping(uint => address) public buddleDestination; // ChainID => Destination Contract Address
     
-    address[] tokens;
+    address[] public tokens;
     mapping(address => bool) public tokenMapping;
     mapping(uint => mapping(address => uint256)) public tokenAmounts;
     mapping(uint => mapping(address => uint256)) public bountyAmounts;
@@ -256,8 +256,8 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
     }
 
     function createTicket(uint destChain) external checkInitialization returns(bytes32) {
-        uint256[] memory _tokenAmounts;
-        uint256[] memory _bountyAmounts;
+        uint256[] memory _tokenAmounts = new uint256[](tokens.length);
+        uint256[] memory _bountyAmounts = new uint256[](tokens.length);
         bytes32 _ticket;
         for (uint n = 0; n < tokens.length; n++) {
             _tokenAmounts[n] = tokenAmounts[destChain][tokens[n]];
