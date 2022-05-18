@@ -1,6 +1,10 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.11;
 
+/**
+ *
+ *
+ */
 interface IBuddleSource {
 
     struct TransferData {
@@ -13,21 +17,19 @@ interface IBuddleSource {
         uint chain;
     }
 
+    /* onlyOwner functions */
+
     /**
      * Initialize the contract with state variables
      * 
      * @param _feeBasisPoints The fee per transfer in basis points
      * @param _feeRampUp The fee ramp up for each transfer
-     * @param _messenger The Layer-2 Cross Domain messenger contract for Optimism
      * @param _buddleBridge The Layer-1 Buddle Bridge contract
-     * @param _stdBridge The Layer-1 Standard Bridge contract for Optimism
      */
     function initialize(
         uint256 _feeBasisPoints,
         uint256 _feeRampUp,
-        address _messenger,
-        address _buddleBridge,
-        address _stdBridge
+        address _buddleBridge
     ) external;
 
     /**
@@ -43,7 +45,7 @@ interface IBuddleSource {
      *
      */
     function addDestination(
-        uint _chain,
+        uint _destChain,
         address _contract
     ) external;
 
@@ -51,7 +53,7 @@ interface IBuddleSource {
      * Change the contract fee basis points
      *
      */
-    function changeContractFeeBasisPoints(
+    function updateContractFeeBasisPoints(
         uint256 _newContractFeeBasisPoints
     ) external;
 
@@ -59,7 +61,7 @@ interface IBuddleSource {
      * Change the contract fee ramp up
      *
      */
-    function changeContractFeeRampUp(
+    function updateContractFeeRampUp(
         uint256 _newContractFeeRampUp
     ) external;
 
@@ -67,23 +69,7 @@ interface IBuddleSource {
      * Change the buddle bridge address
      *
      */
-    function changeBuddleBridge(
-        address _newBridgeAddress
-    ) external;
-
-    /**
-     * Change the layer-2 cross domain messenger
-     *
-     */
-    function changeXDomainMessenger(
-        address _newMessengerAddress
-    ) external;
-
-    /**
-     * Change the Optimsm L1 Standard bridge address
-     *
-     */
-    function changeStandardBridge(
+    function updateBuddleBridge(
         address _newBridgeAddress
     ) external;
 
@@ -91,10 +77,12 @@ interface IBuddleSource {
      * Change the Destination contract address for the given chain id
      *
      */
-    function changeDestination(
-        uint _chain,
+    function updateDestination(
+        uint _destChain,
         address _contract
     ) external;
+
+    /* public functions */
 
     /**
      * @notice previously `widthdraw`
@@ -105,23 +93,23 @@ interface IBuddleSource {
      *  is address(0) if base token
      * @param _destination The destination address for the bridged tokens
      * @param _amount The amount of tokens to be bridged
-     * @param _chain The chain ID for the destination blockchain
+     * @param _destChain The chain ID for the destination blockchain
      */
     function deposit(
         address _tokenAddress,
         uint256 _amount,
         address _destination,
-        uint _chain
+        uint _destChain
     ) external payable returns(bytes32 node);
 
     /**
      * Create a ticket before providing liquidity to the L1 bridge
      * LP creates this ticket and provides liquidity to win the bounty
      *
-     * @param _chain The chain ID for the destination blockchain
+     * @param _destChain The chain ID for the destination blockchain
      */
     function createTicket(
-        uint _chain
+        uint _destChain
     ) external returns(bytes32 node);
 
     /**
@@ -129,7 +117,7 @@ interface IBuddleSource {
      * @notice can only be called by the cross domain messenger
      *
      * @param _ticket The ticket to be confirmed
-     * @param _chain The chain ID for the destination blockchain
+     * @param _destChain The chain ID for the destination blockchain
      * @param _tokens The token addresses included in the ticket
      * @param _tokenAmounts The token amounts included in the ticket
      * @param _bountyAmounts The bounty amounts included in the ticket
@@ -140,7 +128,7 @@ interface IBuddleSource {
      */
     function confirmTicket(
         bytes32 _ticket,
-        uint _chain,
+        uint _destChain,
         address[] memory _tokens,
         uint256[] memory _tokenAmounts,
         uint256[] memory _bountyAmounts,
