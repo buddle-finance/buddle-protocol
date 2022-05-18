@@ -16,26 +16,18 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
     address constant BASE_TOKEN_ADDRESS = address(0);
     uint constant public CHAIN = 69; // Optimism-Kovan
 
-    address messenger; // Optimism L1 cross domain messenger address
-    address tokenBridge; // Optimism L2 standard bridge
-    address addressManager; // Optimism address manager
+    address public messenger; // Optimism L1 cross domain messenger address
+    address public l2stdBridge; // Optimism L2 standard bridge
+    address public addressManager; // Optimism address manager
 
-    address srcContract; // Address of deployed Source Side contract on Optimism
-    address destContract; // Address of deployed Destination Side contract on Optimism
+    address public srcContract; // Address of deployed Source Side contract on Optimism
+    address public destContract; // Address of deployed Destination Side contract on Optimism
 
-    mapping(address => address) tokenMap; // l2 token address => l1 token address
-    mapping(uint => address) buddleBridge; // Chain ID => Buddle Bridge Contract Address
-    mapping(address => bool) knownBridges; // Buddle Bridge Contract Address => true
+    mapping(address => address) public tokenMap; // l2 token address => l1 token address
+    mapping(uint => address) public buddleBridge; // Chain ID => Buddle Bridge Contract Address
+    mapping(address => bool) public knownBridges; // Buddle Bridge Contract Address => true
 
     /** Modifiers */
-
-    /**
-     * Checks that _source is not already mapped
-     */
-    modifier emptyPair(address _l2TokenAddr) {
-        require(tokenMap[_l2TokenAddr] == address(0), "Source is already paired!");
-        _;
-    }
 
     /**
      * Checks whether the contract is initialized
@@ -57,7 +49,7 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
     }
 
     /**
-     *
+     * Checks whether the function is called from a known Buddle bridge contract
      *
      */
     modifier onlyKnownBridge() {
@@ -69,35 +61,50 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
 
     function initialize(
         address _messenger, 
-        address _tokenBridge, 
+        address _l2stdBridge, 
         address _addressManager
     ) external {
         require(messenger == address(0), "Contract already initialized!");
 
         messenger = _messenger;
-        tokenBridge = _tokenBridge;
+        l2stdBridge = _l2stdBridge;
         addressManager = _addressManager;
 
         buddleBridge[CHAIN] = address(this);
         knownBridges[address(this)] = true;
     }
 
-    function setContracts(
-        address _src,
+    function setSource(
+        address _src
+    ) external onlyOwner checkInitialization {
+        require(_src != address(0), "Source cannot be the zero address!");
+        srcContract = _src;
+    }
+
+    function setDestination(
         address _dest
     ) external onlyOwner checkInitialization {
-        srcContract = _src;
+        require(_dest != address(0), "Destination cannot be the zero address!");
         destContract = _dest;
     }
 
-    function addTokenAddress(
+    function addTokenMap(
         address _l2TokenAddress,
         address _l1TokenAddress 
-    ) external onlyOwner emptyPair(_l2TokenAddress) checkInitialization {
+    ) external onlyOwner checkInitialization {
+        require(tokenMap[_l2TokenAddress] == address(0), "A token map already exists.");
         tokenMap[_l2TokenAddress] = _l1TokenAddress;
     }
 
-    function addBridge(
+    function updateTokenMap(
+        address _l2TokenAddress,
+        address _l1TokenAddress 
+    ) external onlyOwner checkInitialization {
+        require(tokenMap[_l2TokenAddress] != address(0), "A token map does not exist.");
+        tokenMap[_l2TokenAddress] = _l1TokenAddress;
+    }
+
+    function addBuddleBridge(
         uint _chain,
         address _contract
     ) external onlyOwner checkInitialization {
@@ -108,13 +115,31 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
         knownBridges[_contract] = true;
     }
 
-    function updateBridge(
+    function updateBuddleBridge(
         uint _chain,
         address _contract
     ) external onlyOwner checkInitialization supportedChain(_chain) {
         knownBridges[buddleBridge[_chain]] = false;
         buddleBridge[_chain] = _contract;
         knownBridges[_contract] = true;
+    }
+
+    function updateXDomainMessenger(
+        address _newMessengerAddress
+    ) external onlyOwner checkInitialization {
+        messenger = _newMessengerAddress;
+    }
+
+    function updateStandardBridge(
+        address _newBridgeAddress
+    ) external onlyOwner checkInitialization {
+        l2stdBridge = _newBridgeAddress;
+    }
+
+    function updateAddressManager(
+        address _newManagerAddress
+    ) external onlyOwner checkInitialization {
+        addressManager = _newManagerAddress;
     }
 
     /* public functions */
@@ -156,7 +181,7 @@ contract BuddleBridgeOptimism is IBuddleBridge, Ownable {
       onlyKnownBridge {
 
         L1StandardBridge _bridge;
-        _bridge.initialize(messenger, tokenBridge);
+        _bridge.initialize(messenger, l2stdBridge);
 
         for(uint i=0; i < _tokens.length; i++) {
             if(_tokens[i] == BASE_TOKEN_ADDRESS) {
