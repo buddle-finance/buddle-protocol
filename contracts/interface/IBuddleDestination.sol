@@ -13,32 +13,31 @@ interface IBuddleDestination {
         uint chain;
     }
 
+    /********************** 
+     * onlyOwner functions *
+     ***********************/
+    
     /**
      * Initialize the contract with state variables
      * 
-     * @param _messenger Layer-2 Cross Domain messenger contract
-     * @param _tokenBridge Buddle Bridge contract on Layer-1
+     * @param _buddleBridge Buddle Bridge contract on Layer-1
      */
     function initialize(
-        address _messenger,
-        address _tokenBridge
+        address _buddleBridge
     ) external;
 
     /**
      * Change the buddle bridge address
      *
+     * @param _newBridgeAddress new bridge address
      */
-    function changeBuddleBridge(
+    function updateBuddleBridge(
         address _newBridgeAddress
     ) external;
-
-    /**
-     * Change the layer-2 cross domain messenger
-     *
-     */
-    function changeXDomainMessenger(
-        address _newMessengerAddress
-    ) external;
+    
+    /********************** 
+     * public functions *
+     ***********************/
     
     /**
      * A valid liquidity owner for a transferID may change the owner if desired
