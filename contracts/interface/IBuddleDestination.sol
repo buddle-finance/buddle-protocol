@@ -10,7 +10,7 @@ interface IBuddleDestination {
         uint256 fee;
         uint256 startTime;
         uint256 feeRampup;
-        uint chain;
+        uint256 chain;
     }
 
     /********************** 

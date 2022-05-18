@@ -16,12 +16,12 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
 
     address constant BASE_TOKEN_ADDRESS = address(0);
 
-    address public buddleBridge; // The bridge deployed on the Layer-1 chain
+    address public buddleBridge;
 
-    mapping(uint => mapping(uint256 => address)) public liquidityOwners;
-    mapping(uint => mapping(uint256 => uint256)) public transferFee;
-    mapping(uint => mapping(bytes32 => bool)) internal liquidityHashes;
-    mapping(uint => mapping(bytes32 => bool)) internal approvedRoot;
+    mapping(uint256 => mapping(uint256 => address)) public liquidityOwners;
+    mapping(uint256 => mapping(uint256 => uint256)) public transferFee;
+    mapping(uint256 => mapping(bytes32 => bool)) internal liquidityHashes;
+    mapping(uint256 => mapping(bytes32 => bool)) internal approvedRoot;
 
     /********** 
      * events *
@@ -30,15 +30,27 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
     event TransferCompleted(
         TransferData transferData,
         uint256 transferID,
-        uint sourceChain,
+        uint256 sourceChain,
         address liquidityProvider
     );
 
     event WithdrawalEvent(
         TransferData transferData,
         uint256 transferID,
-        uint sourceChain,
+        uint256 sourceChain,
         address claimer
+    );
+
+    event LiquidityOwnerChanged(
+        uint256 sourceChain,
+        uint256 transferID,
+        address oldOwner,
+        address newOwner
+    );
+
+    event RootApproved(
+        uint256 sourceChain,
+        bytes32 stateRoot
     );
 
     /************
@@ -59,7 +71,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
      *
      */
     modifier validOwner(
-        uint sourceChain,
+        uint256 sourceChain,
         uint256 _id,
         address _destination
     ) {
@@ -79,17 +91,6 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
     *
     */
     function isBridgeContract() internal virtual returns (bool);
-
-    /**
-     * Generate a hash node with the given transfer data and transfer id
-     *
-     * @param _transferData Transfer Data of the transfer emitted under TransferCreated event
-     * @param transferID Transfer ID of the transfer emitted under TransferCreated event
-     */
-    function _generateNode(
-        TransferData memory _transferData, 
-        uint256 transferID
-    ) internal virtual returns (bytes32 node);
 
     /********************** 
      * onlyOwner functions *
@@ -127,12 +128,16 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
     function changeOwner(
         TransferData memory _data,
         uint256 _transferID,
-        uint sourceChain,
+        uint256 sourceChain,
         address _owner
     ) external 
       checkInitialization
       validOwner(sourceChain, _transferID, _data.destination) {
+        address _old = liquidityOwners[sourceChain][_transferID] == address(0)?
+            _data.destination : liquidityOwners[sourceChain][_transferID];
         liquidityOwners[sourceChain][_transferID] = _owner;
+        
+        emit LiquidityOwnerChanged(sourceChain, _transferID, _old, _owner);
     }
 
     /**
@@ -141,7 +146,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
     function deposit(
         TransferData memory transferData, 
         uint256 transferID,
-        uint sourceChain
+        uint256 sourceChain
     ) external payable checkInitialization {
         require(liquidityOwners[sourceChain][transferID] == address(0),
             "A Liquidity Provider already exists for this transfer"
@@ -170,7 +175,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
     function withdraw(
         TransferData memory transferData,
         uint256 transferID,
-        uint sourceChain,
+        uint256 sourceChain,
         bytes32 _node,
         bytes32[] memory _proof,
         bytes32 _root
@@ -214,17 +219,45 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
      * @inheritdoc IBuddleDestination
      */
     function approveStateRoot(
-        uint sourceChain,
+        uint256 sourceChain,
         bytes32 stateRoot
     ) external checkInitialization {
         require(isBridgeContract(), "Only the Buddle Bridge contract can call this method");
+        
         approvedRoot[sourceChain][stateRoot] = true;
+
+        emit RootApproved(sourceChain, stateRoot);
     }
 
     /********************** 
      * internal functions *
      ***********************/
 
+    /**
+     * Generate a hash node with the given transfer data and transfer id
+     *
+     * @param _transferData Transfer Data of the transfer emitted under TransferCreated event
+     * @param transferID Transfer ID of the transfer emitted under TransferCreated event
+     */
+    function _generateNode(
+        TransferData memory _transferData, 
+        uint256 transferID
+    ) internal view returns (bytes32 node) {
+        bytes32 transferDataHash = sha256(abi.encodePacked(
+            _transferData.tokenAddress,
+            _transferData.destination,
+            _transferData.amount,
+            _transferData.fee,
+            _transferData.startTime,
+            _transferData.feeRampup,
+            _transferData.chain
+        ));
+        node = sha256(abi.encodePacked(
+            transferDataHash, 
+            sha256(abi.encodePacked(address(this))), // TODO: this line may cause an error
+            sha256(abi.encodePacked(transferID))
+        ));
+    }
 
     /**
      * Verify that the transfer data provided matches the hash provided
@@ -234,7 +267,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
         TransferData memory _transferData, 
         uint256 transferID, 
         bytes32 _node
-    ) internal returns (bool) {
+    ) internal view returns (bool) {
         return _generateNode(_transferData, transferID) == _node;
     }
     
