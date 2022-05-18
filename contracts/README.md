@@ -28,3 +28,9 @@
 **Optimsim Kovan Destination** 0xB3eeb48D47D7361A329B0337C47ebDcc18901A0c
 
 **Kovan Bridge** 0x3ec618E37e00E19bc2b139D0C3aa02feFe692E28
+
+### Optimism Contracts
+
+- Source : `[](https://kovan-optimistic.etherscan.io/address/#code)`
+- Bridge : `[](https://kovan-optimistic.etherscan.io/address/#code)`
+- Destination : `[](https://kovan-optimistic.etherscan.io/address/#code)`
