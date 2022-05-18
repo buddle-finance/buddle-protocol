@@ -17,7 +17,9 @@ interface IBuddleSource {
         uint chain;
     }
 
-    /* onlyOwner functions */
+    /********************** 
+     * onlyOwner functions *
+     ***********************/
 
     /**
      * Initialize the contract with state variables
@@ -82,7 +84,9 @@ interface IBuddleSource {
         address _contract
     ) external;
 
-    /* public functions */
+    /********************** 
+     * public functions *
+     ***********************/
 
     /**
      * @notice previously `widthdraw`

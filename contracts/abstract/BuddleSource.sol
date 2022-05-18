@@ -24,8 +24,8 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
     bytes32[MERKLE_TREE_DEPTH] internal zeroes;
     mapping(uint => bytes32[MERKLE_TREE_DEPTH]) internal branch;
 
-    address public buddleBridge; // Layer 1 Buddle Bridge contract
-    mapping(uint => address) public buddleDestination; // ChainID => Buddle Destination Contract
+    address public buddleBridge;
+    mapping(uint => address) public buddleDestination;
 
     address[] public tokens;
     mapping(address => bool) public tokenMapping;
@@ -36,7 +36,9 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
     mapping(uint => uint256) internal lastConfirmedTransfer;
     mapping(uint => mapping(bytes32 => bool)) internal tickets;
 
-    /* events */
+    /********** 
+     * events *
+     **********/
 
     event TransferStarted(
         TransferData transferData,
@@ -61,7 +63,9 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         bytes32 stateRoot
     );
 
-    /* modifiers */
+    /************
+     * modifers *
+     ************/
 
     /**
      * Checks whether the contract is initialized
@@ -92,16 +96,40 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         _;
     }
 
-    /* virtual functions */
+    /********************** 
+     * virtual functions *
+     ***********************/
     
+    /**
+    * Returns true if the msg.sender is the buddleBridge contract address
+    *
+    */
     function isBridgeContract() internal virtual returns (bool);
 
+    /**
+    * Emits the TransferStarted event with the constant CHAIN id in derived contract
+    *
+    * @param _data The TransferData to be emitted
+    * @param _id The Transfer ID to be emitted
+    * @param _node The hashed node corresponding to the transfer data and id
+    */
     function _emitTransfer(
         TransferData memory _data,
         uint256 _id,
         bytes32 _node
     ) internal virtual;
 
+    /**
+    * Bridges the funds as described by _tokenAmounts and _bountyAmounts to the _provider
+    * on layer 1.
+    * @notice called by confirmTicket(...)
+    *
+    * @param _destChain The destination chain id for the ticket created
+    * @param _tokens The list of ERC20 contract addresses included in ticket
+    * @param _tokenAmounts The corresponding list of transfer amounts summed
+    * @param _bountyAmounts The corresponding list of bounty fees summed
+    * @param _provider The bounty seeker on layer 1
+    */
     function _bridgeFunds(
         uint _destChain,
         address[] memory _tokens,
@@ -110,7 +138,9 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         address _provider
     ) internal virtual;
 
-    /* onlyOwner functions */
+    /********************** 
+     * onlyOwner functions *
+     ***********************/
 
     /**
      * @inheritdoc IBuddleSource
@@ -201,7 +231,9 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         buddleDestination[_chain] = _contract;
     }
 
-    /* public functions */
+    /********************** 
+     * public functions *
+     ***********************/
 
     /**
      * @inheritdoc IBuddleSource
@@ -334,7 +366,9 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         emit TicketConfirmed(_ticket, _stateRoot);
     }
 
-    /* internal functions */
+    /********************** 
+     * internal functions *
+     ***********************/
 
     /**
      * Update the Merkle Tree representation with the new node

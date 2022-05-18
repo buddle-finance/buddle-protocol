@@ -15,11 +15,17 @@ contract BuddleSrcOptimism is BuddleSource {
 
     uint constant public CHAIN = 69;
     
-    address messenger;  // L2 blockchain cross domain messenger contract address
-    address stdBridge; // L1 Standard bridge for Optimism
+    address messenger;
+    address stdBridge;
 
     /* onlyOwner functions */
 
+    /**
+    * Set the addresses of Optimism's cross domain messenger
+    *
+    * @param _messenger Optimism L2 cross domain messenger
+    * @param _stdBridge Optimism L1 standard bridge
+    */
     function setXDomainMessenger(
         address _messenger,
         address _stdBridge
@@ -28,12 +34,22 @@ contract BuddleSrcOptimism is BuddleSource {
         stdBridge = _stdBridge;
     }
 
+    /**
+    * Update the address of the cross domain messenger
+    *
+    * @param _newMessengerAddress Optimism L2 cross domain messenger
+    */
     function updateXDomainMessenger(
         address _newMessengerAddress
     ) external onlyOwner checkInitialization {
         messenger = _newMessengerAddress;
     }
 
+    /**
+    * Update the address of the standard bridge
+    *
+    * @param _newBridgeAddress Optimism L1 standard bridge
+    */
     function updateStandardBridge(
         address _newBridgeAddress
     ) external onlyOwner checkInitialization {
@@ -42,11 +58,17 @@ contract BuddleSrcOptimism is BuddleSource {
 
     /* internal functions */
 
+    /**
+     * @inheritdoc BuddleSource
+     */
     function isBridgeContract() internal view override returns (bool) {
         return (msg.sender == messenger && 
             L2CrossDomainMessenger(messenger).xDomainMessageSender() == buddleBridge);
     }
 
+    /**
+     * @inheritdoc BuddleSource
+     */
     function _emitTransfer(
         TransferData memory _data,
         uint256 _id,
@@ -55,6 +77,9 @@ contract BuddleSrcOptimism is BuddleSource {
         emit TransferStarted(_data, _id, _node, CHAIN);
     }
 
+    /**
+     * @inheritdoc BuddleSource
+     */
     function _bridgeFunds(
         uint _destChain,
         address[] memory _tokens,
@@ -75,5 +100,4 @@ contract BuddleSrcOptimism is BuddleSource {
             bountyAmounts[_destChain][_tokens[n]] -= _bountyAmounts[n];
         }
     }
-
 }
