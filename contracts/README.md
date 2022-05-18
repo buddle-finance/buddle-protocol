@@ -24,13 +24,29 @@
 
 ## Deployed Contracts
 
-**Optimsim Kovan Source** 0xf65D533246e28Ccde202a446271FC5f0Fc1b9A29
-**Optimsim Kovan Destination** 0xB3eeb48D47D7361A329B0337C47ebDcc18901A0c
-
-**Kovan Bridge** 0x3ec618E37e00E19bc2b139D0C3aa02feFe692E28
-
 ### Optimism Contracts
+> On Kovan and Optimistic-Kovan
 
-- Source : `[](https://kovan-optimistic.etherscan.io/address/#code)`
-- Bridge : `[](https://kovan-optimistic.etherscan.io/address/#code)`
-- Destination : `[](https://kovan-optimistic.etherscan.io/address/#code)`
+- Source : [`0x9E638b2C9796E5966f62a6e2d9e397aB86A89781`](https://kovan-optimistic.etherscan.io/address/0x9E638b2C9796E5966f62a6e2d9e397aB86A89781#code)
+- Bridge : [`0x5dfca806df06e0767f5e440dc1dca3d716eff6af`](https://kovan.etherscan.io/address/0x5dfca806df06e0767f5e440dc1dca3d716eff6af#code)
+- Destination : [`0x93Ef1b96F7Cea346716634eA022c920AaB772257`](https://kovan-optimistic.etherscan.io/address/0x93Ef1b96F7Cea346716634eA022c920AaB772257#code)
+
+## Initializing
+
+### Source
+
+- `initialize()`
+- `setXDomainMessenger()`
+- `addDestination()`
+
+### Destination
+
+- `initialize()`
+- `setXDomainMessenger()`
+
+### Bridge
+
+- `initialize()`
+- `setSource()`
+- `setDestination()`
+- `addTokenMap()`

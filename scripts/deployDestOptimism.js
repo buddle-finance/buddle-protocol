@@ -19,7 +19,7 @@ async function main() {
 
   await srcOptimism.deployed();
 
-  console.log("Source Optimism deployed to:", srcOptimism.address);
+  console.log("Dest Optimism deployed to:", srcOptimism.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

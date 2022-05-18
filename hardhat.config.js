@@ -43,9 +43,7 @@ module.exports = {
     currency: "USD",
   },
   etherscan: {
-    apiKey: {
-      kovan: process.env.ETHERSCAN_API_KEY,
-      optimisticKovan: process.env.OPTIMISMSCAN_API_KEY
-    }
+    apiKey: process.env.ETHERSCAN_API_KEY,
+    // apiKey: process.env.OPTIMISMSCAN_API_KEY,
   },
 };
