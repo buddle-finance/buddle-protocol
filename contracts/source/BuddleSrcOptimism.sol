@@ -18,7 +18,9 @@ contract BuddleSrcOptimism is BuddleSource {
     address messenger;
     address stdBridge;
 
-    /* onlyOwner functions */
+    /********************** 
+     * onlyOwner functions *
+     ***********************/
 
     /**
     * Set the addresses of Optimism's cross domain messenger
@@ -56,7 +58,9 @@ contract BuddleSrcOptimism is BuddleSource {
         stdBridge = _newBridgeAddress;
     }
 
-    /* internal functions */
+    /********************** 
+     * internal functions *
+     ***********************/
 
     /**
      * @inheritdoc BuddleSource
