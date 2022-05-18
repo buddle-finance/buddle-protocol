@@ -44,8 +44,9 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         _;
     }
 
-    /* onlyOwner functions */
-
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function setSource(
         address _src
     ) external onlyOwner {
@@ -53,6 +54,9 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         buddle.source = _src;
     }
 
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function setDestination(
         address _dest
     ) external onlyOwner {
@@ -60,6 +64,9 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         buddle.destination = _dest;
     }
 
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function addTokenMap(
         address _l2TokenAddress,
         address _l1TokenAddress 
@@ -68,6 +75,9 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         tokenMap[_l2TokenAddress] = _l1TokenAddress;
     }
 
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function updateTokenMap(
         address _l2TokenAddress,
         address _l1TokenAddress 
@@ -76,6 +86,9 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         tokenMap[_l2TokenAddress] = _l1TokenAddress;
     }
 
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function addBuddleBridge(
         uint _chain,
         address _contract
@@ -87,6 +100,9 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         knownBridges[_contract] = true;
     }
 
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function updateBuddleBridge(
         uint _chain,
         address _contract

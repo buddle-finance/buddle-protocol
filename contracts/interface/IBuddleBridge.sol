@@ -12,17 +12,7 @@ interface IBuddleBridge {
         address destination;
     }
 
-    /**
-     * Initialize the contract with state variables
-     * @param _messenger The address of the L1 Cross Domain Messenger Contract
-     * @param _tokenBridge The address of the L2 Standard Token Bridge
-     * @param _addressManager The address of the Address Manager
-     */
-    function initialize(
-        address _messenger, 
-        address _tokenBridge, 
-        address _addressManager
-    ) external;
+    /* onlyOwner functions */
 
     /**
      * Set the Buddle source side contract for the respective L2 chain
@@ -85,6 +75,8 @@ interface IBuddleBridge {
         uint _chain,
         address _contract
     ) external;
+
+    /* public functions */
 
     /**
      * Claim the bounty for the current pool. A ticket must be emitted prior to this function.

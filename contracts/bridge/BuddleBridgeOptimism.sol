@@ -31,6 +31,13 @@ contract BuddleBridgeOptimism is BuddleBridge {
 
     /* onlyOwner functions */
 
+    /**
+     * Initialize the contract with state variables
+     *
+     * @param _messenger The address of the L1 Cross Domain Messenger Contract
+     * @param _l2stdBridge The address of the L2 Standard Token Bridge
+     * @param _addressManager The address of the Address Manager
+     */
     function initialize(
         address _messenger, 
         address _l2stdBridge, 
@@ -66,6 +73,9 @@ contract BuddleBridgeOptimism is BuddleBridge {
 
     /* public functions */
 
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function claimBounty(
         bytes32 _ticket,
         uint _chain,
@@ -96,6 +106,9 @@ contract BuddleBridgeOptimism is BuddleBridge {
 
     }
 
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function transferFunds(
         address[] memory _tokens,
         uint256[] memory _amounts,
@@ -135,6 +148,9 @@ contract BuddleBridgeOptimism is BuddleBridge {
 
     }
 
+    /**
+     * @inheritdoc IBuddleBridge
+     */
     function approveRoot(
         bytes32 _root
     ) external 
