@@ -3,7 +3,7 @@ pragma solidity ^0.8.11;
 
 import "../abstract/BuddleSource.sol";
 
-import "@eth-optimism/contracts/L2/messaging/L2StandardBridge.sol";
+import "@eth-optimism/contracts/L2/messaging/IL2ERC20Bridge.sol";
 import "@eth-optimism/contracts/L2/messaging/L2CrossDomainMessenger.sol";
 
 /**
@@ -26,7 +26,7 @@ contract BuddleSrcOptimism is BuddleSource {
     * Set the addresses of Optimism's cross domain messenger
     *
     * @param _messenger Optimism L2 cross domain messenger
-    * @param _stdBridge Optimism L1 standard bridge
+    * @param _stdBridge Optimism L2 standard bridge
     */
     function setXDomainMessenger(
         address _messenger,
@@ -50,7 +50,7 @@ contract BuddleSrcOptimism is BuddleSource {
     /**
     * Update the address of the standard bridge
     *
-    * @param _newBridgeAddress Optimism L1 standard bridge
+    * @param _newBridgeAddress Optimism L2 standard bridge
     */
     function updateStandardBridge(
         address _newBridgeAddress
@@ -91,14 +91,25 @@ contract BuddleSrcOptimism is BuddleSource {
         uint256[] memory _bountyAmounts,
         address _provider
     ) internal override {
+        IL2ERC20Bridge _bridge = IL2ERC20Bridge(stdBridge);
 
-        // TODO: Send funds to L2 standard bridge
         for (uint n = 0; n < _tokens.length; n++) {
             if(_tokens[n] == BASE_TOKEN_ADDRESS) {
-                payable(_provider).transfer(_tokenAmounts[n]+_bountyAmounts[n]);
+                _bridge.withdrawTo(
+                    0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000,
+                    _provider,
+                    _tokenAmounts[n]+_bountyAmounts[n],
+                    1000000,
+                    bytes("")
+                );
             } else {
-                IERC20 token = IERC20(_tokens[n]);
-                token.safeTransfer(_provider, _tokenAmounts[n]+_bountyAmounts[n]);
+                _bridge.withdrawTo(
+                    _tokens[n],
+                    _provider,
+                    _tokenAmounts[n]+_bountyAmounts[n],
+                    1000000,
+                    bytes("")
+                );
             }
             tokenAmounts[_destChain][_tokens[n]] -= _tokenAmounts[n];
             bountyAmounts[_destChain][_tokens[n]] -= _bountyAmounts[n];
