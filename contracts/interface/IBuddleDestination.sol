@@ -41,6 +41,21 @@ interface IBuddleDestination {
     ) external;
     
     /**
+     * A valid liquidity owner for a transferID may change the owner if desired
+     *
+     * @param _data The transfer data corresponding to the transfer id
+     * @param _transferID The transfer ID corresponding to the transfer data
+     * @param sourceChain The chain id of the blockchain where the transfer originated
+     * @param _owner The new owner for the transfer
+     */
+    function changeOwner(
+        TransferData memory _data,
+        uint256 _transferID,
+        uint sourceChain,
+        address _owner
+    ) external;
+
+    /**
      * Deposit funds into the contract to transfer to the destination of the transfer.
      * If no owner exists, anyone may call this function to complete a transfer
      * and claim ownership of the LP fee
@@ -80,9 +95,11 @@ interface IBuddleDestination {
      * Approve a new root for an incoming transfer
      * @notice only the Buddle Bridge contract on Layer 1 can call this method
      *
+     * @param sourceChain The chain id of the blockchain where the root originated
+     * @param stateRoot The state root to be approved
      */
     function approveStateRoot(
-        uint _chain,
+        uint sourceChain,
         bytes32 stateRoot
     ) external;
 }

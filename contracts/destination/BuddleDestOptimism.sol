@@ -16,7 +16,7 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
     address messenger; // Address of deployed L2CrossDomainMessenger contract on Optimism
     address buddleBridge; // The bridge deployed on the Layer-1 chain
 
-    mapping(uint => mapping(uint256 => address payable)) public liquidityOwners;
+    mapping(uint => mapping(uint256 => address)) public liquidityOwners;
     mapping(uint => mapping(bytes32 => bool)) public liquidityHashes;
     mapping(uint => mapping(uint256 => uint256)) public transferFee;
     mapping(uint => mapping(bytes32 => bool)) public approvedRoot;
@@ -68,12 +68,12 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
      *
      */
     modifier validOwner(
-        uint _chain,
+        uint sourceChain,
         uint256 _id,
         address _destination
     ) {
-        require( liquidityOwners[_chain][_id] == msg.sender ||
-            (liquidityOwners[_chain][_id] == address(0) && _destination == msg.sender),
+        require( liquidityOwners[sourceChain][_id] == msg.sender ||
+            (liquidityOwners[sourceChain][_id] == address(0) && _destination == msg.sender),
             "Can only be called by owner or destination if there is no owner."
         );
         _;
@@ -108,12 +108,12 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
     function changeOwner(
         TransferData memory _data,
         uint256 _transferID,
-        uint _chain,
-        address payable _owner
+        uint sourceChain,
+        address _owner
     ) external 
       checkInitialization
-      validOwner(_chain, _transferID, _data.destination) {
-        liquidityOwners[_chain][_transferID] = _owner;
+      validOwner(sourceChain, _transferID, _data.destination) {
+        liquidityOwners[sourceChain][_transferID] = _owner;
     }
     
     function deposit(
@@ -136,7 +136,7 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
             token.safeTransferFrom(msg.sender, address(this), amountMinusLPFee);
             token.safeTransfer(transferData.destination, amountMinusLPFee);
         }
-        liquidityOwners[sourceChain][transferID] = payable(msg.sender);
+        liquidityOwners[sourceChain][transferID] = msg.sender;
         liquidityHashes[sourceChain][_generateNode(transferData, transferID)] = true;
 
         emit TransferCompleted(transferData, transferID, sourceChain, msg.sender);
@@ -162,7 +162,7 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
         //  reset liquidity owner for the transfer id
         if(liquidityOwners[sourceChain][transferID] != address(0)
             && !liquidityHashes[sourceChain][_node]) {
-            liquidityOwners[sourceChain][transferID] = payable(address(0));
+            liquidityOwners[sourceChain][transferID] = address(0);
         }
 
         address claimer = liquidityOwners[sourceChain][transferID] == address(0)? 
@@ -179,17 +179,17 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
             token.safeTransferFrom(address(this), claimer, transferData.amount);
         }
 
-        liquidityOwners[sourceChain][transferID] = payable(address(this));
+        liquidityOwners[sourceChain][transferID] = address(this);
         liquidityHashes[sourceChain][_node] = false;
 
         emit WithdrawalEvent(transferData, transferID, sourceChain, claimer);
     }
 
     function approveStateRoot(
-        uint _chain,
+        uint sourceChain,
         bytes32 stateRoot
     ) external onlyBridgeContract checkInitialization {
-        approvedRoot[_chain][stateRoot] = true;
+        approvedRoot[sourceChain][stateRoot] = true;
     }
 
     /* internal functions */
@@ -258,7 +258,7 @@ contract BuddleDestOptimism is IBuddleDestination, Ownable {
     ) internal pure returns (uint256) {
         if(_currentTime < _transferData.startTime)
             return 0;
-        else if(_currentTime >= _transferData.startTime + _transferData.feeRampup)
+        else if(_currentTime >= _transferData.startTime + _transferData.feeRampup) // TODO check logic
             return _transferData.fee;
         else
             return _transferData.fee * (_currentTime - _transferData.startTime); // feeRampup

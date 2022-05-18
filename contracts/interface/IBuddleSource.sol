@@ -147,6 +147,6 @@ interface IBuddleSource {
         uint256 _firstTransferInTicket, 
         uint256 _lastTransferInTicket, 
         bytes32 _stateRoot,
-        address payable _provider
+        address _provider
     ) external;
 }

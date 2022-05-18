@@ -293,7 +293,7 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
         uint256 _firstTransferInTicket, 
         uint256 _lastTransferInTicket,
         bytes32 _stateRoot,
-        address payable _provider
+        address _provider
     ) external checkInitialization onlyBridgeContract {
         
         // Build ticket to check validity of data
@@ -314,7 +314,7 @@ contract BuddleSrcOptimism is IBuddleSource, Ownable {
         // TODO: Send funds to L2 standard bridge
         for (uint n = 0; n < _tokens.length; n++) {
             if(tokens[n] == BASE_TOKEN_ADDRESS) {
-                _provider.transfer(_tokenAmounts[n]+_bountyAmounts[n]);
+                payable(_provider).transfer(_tokenAmounts[n]+_bountyAmounts[n]);
             } else {
                 IERC20 token = IERC20(_tokens[n]);
                 token.safeTransfer(_provider, _tokenAmounts[n]+_bountyAmounts[n]);
