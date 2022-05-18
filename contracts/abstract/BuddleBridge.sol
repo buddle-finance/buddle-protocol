@@ -22,7 +22,9 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
     mapping(address => bool) public knownBridges; // Buddle Bridge Contract Address => true
 
 
-    /** Modifiers */
+    /************* 
+     * modifiers *
+     *************/
 
     /**
      * Checks whether a destination contract exists for the given chain id
@@ -43,6 +45,10 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         require(knownBridges[msg.sender], "Unauthorized call from unknown contract");
         _;
     }
+
+    /********************** 
+     * onlyOwner functions *
+     ***********************/
 
     /**
      * @inheritdoc IBuddleBridge

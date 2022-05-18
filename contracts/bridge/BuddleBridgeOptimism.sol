@@ -19,7 +19,9 @@ contract BuddleBridgeOptimism is BuddleBridge {
     address public l2stdBridge; // Optimism L2 standard bridge
     address public addressManager; // Optimism address manager
 
-    /** Modifiers */
+    /*************
+     * modifiers *
+     *************/
 
     /**
      * Checks whether the contract is initialized
@@ -29,7 +31,9 @@ contract BuddleBridgeOptimism is BuddleBridge {
         _;
     }
 
-    /* onlyOwner functions */
+    /********************** 
+     * onlyOwner functions *
+     ***********************/
 
     /**
      * Initialize the contract with state variables
@@ -71,7 +75,9 @@ contract BuddleBridgeOptimism is BuddleBridge {
         addressManager = _newManagerAddress;
     }
 
-    /* public functions */
+    /********************** 
+     * public functions *
+     ***********************/
 
     /**
      * @inheritdoc IBuddleBridge

@@ -12,7 +12,9 @@ interface IBuddleBridge {
         address destination;
     }
 
-    /* onlyOwner functions */
+    /********************** 
+     * onlyOwner functions *
+     ***********************/
 
     /**
      * Set the Buddle source side contract for the respective L2 chain
@@ -76,7 +78,9 @@ interface IBuddleBridge {
         address _contract
     ) external;
 
-    /* public functions */
+    /********************** 
+     * public functions *
+     ***********************/
 
     /**
      * Claim the bounty for the current pool. A ticket must be emitted prior to this function.
