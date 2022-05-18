@@ -28,7 +28,7 @@
 > On Kovan and Optimistic-Kovan
 
 - Source : [`0x9E638b2C9796E5966f62a6e2d9e397aB86A89781`](https://kovan-optimistic.etherscan.io/address/0x9E638b2C9796E5966f62a6e2d9e397aB86A89781#code)
-- Bridge : [`0x5dfca806df06e0767f5e440dc1dca3d716eff6af`](https://kovan.etherscan.io/address/0x5dfca806df06e0767f5e440dc1dca3d716eff6af#code)
+- Bridge : [`0x6eb04689C0F84553317bFE1ba221ed63F27840Cc`](https://kovan.etherscan.io/address/0x6eb04689C0F84553317bFE1ba221ed63F27840Cc#code)
 - Destination : [`0x93Ef1b96F7Cea346716634eA022c920AaB772257`](https://kovan-optimistic.etherscan.io/address/0x93Ef1b96F7Cea346716634eA022c920AaB772257#code)
 
 ## Initializing

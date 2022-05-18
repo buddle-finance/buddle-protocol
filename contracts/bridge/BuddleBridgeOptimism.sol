@@ -3,8 +3,8 @@ pragma solidity ^0.8.11;
 
 import "../abstract/BuddleBridge.sol";
 
-import "@eth-optimism/contracts/L1/messaging/L1StandardBridge.sol";
-import "@eth-optimism/contracts/L1/messaging/L1CrossDomainMessenger.sol";
+import "@eth-optimism/contracts/L1/messaging/IL1StandardBridge.sol";
+import "@eth-optimism/contracts/L1/messaging/IL1CrossDomainMessenger.sol";
 
 /**
  *
@@ -15,9 +15,8 @@ contract BuddleBridgeOptimism is BuddleBridge {
 
     uint constant public CHAIN = 69; // Optimism-Kovan
 
-    address public messenger; // Optimism L1 cross domain messenger address
-    address public l2stdBridge; // Optimism L2 standard bridge
-    address public addressManager; // Optimism address manager
+    address public messenger;
+    address public stdBridge;
 
     /*************
      * modifiers *
@@ -39,19 +38,16 @@ contract BuddleBridgeOptimism is BuddleBridge {
      * Initialize the contract with state variables
      *
      * @param _messenger The address of the L1 Cross Domain Messenger Contract
-     * @param _l2stdBridge The address of the L2 Standard Token Bridge
-     * @param _addressManager The address of the Address Manager
+     * @param _stdBridge The address of the L1 Standard Token Bridge
      */
     function initialize(
-        address _messenger, 
-        address _l2stdBridge, 
-        address _addressManager
+        address _messenger,
+        address _stdBridge
     ) external {
         require(messenger == address(0), "Contract already initialized!");
 
         messenger = _messenger;
-        l2stdBridge = _l2stdBridge;
-        addressManager = _addressManager;
+        stdBridge = _stdBridge;
 
         buddleBridge[CHAIN] = address(this);
         knownBridges[address(this)] = true;
@@ -66,13 +62,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
     function updateStandardBridge(
         address _newBridgeAddress
     ) external onlyOwner checkInitialization {
-        l2stdBridge = _newBridgeAddress;
-    }
-
-    function updateAddressManager(
-        address _newManagerAddress
-    ) external onlyOwner checkInitialization {
-        addressManager = _newManagerAddress;
+        stdBridge = _newBridgeAddress;
     }
 
     /********************** 
@@ -94,8 +84,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
     ) external payable 
       checkInitialization {
 
-        L1CrossDomainMessenger _messenger;
-        _messenger.initialize(addressManager);
+        IL1CrossDomainMessenger _messenger = IL1CrossDomainMessenger(messenger);
 
         _messenger.sendMessage(
             buddle.source,
@@ -123,8 +112,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
       checkInitialization
       onlyKnownBridge {
 
-        L1StandardBridge _bridge;
-        _bridge.initialize(messenger, l2stdBridge);
+        IL1StandardBridge _bridge = IL1StandardBridge(stdBridge);
 
         for(uint i=0; i < _tokens.length; i++) {
             if(_tokens[i] == BASE_TOKEN_ADDRESS) {
@@ -163,8 +151,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
       checkInitialization
       onlyKnownBridge {
 
-        L1CrossDomainMessenger _messenger;
-        _messenger.initialize(addressManager);
+        IL1CrossDomainMessenger _messenger = IL1CrossDomainMessenger(messenger);
 
         _messenger.sendMessage(
             buddle.destination,
