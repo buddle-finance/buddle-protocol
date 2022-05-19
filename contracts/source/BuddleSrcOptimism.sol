@@ -15,8 +15,8 @@ contract BuddleSrcOptimism is BuddleSource {
 
     uint256 constant public CHAIN = 69;
     
-    address messenger;
-    address stdBridge;
+    address public messenger;
+    address public stdBridge;
 
     /********************** 
      * onlyOwner functions *
