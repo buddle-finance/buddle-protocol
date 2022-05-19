@@ -27,7 +27,7 @@
 ### Optimism Contracts
 > On Kovan and Optimistic-Kovan
 
-- Source : [`0xd7413Aa6A0D16b4eeA901CbC8489f065aE5FB320`](https://kovan-optimistic.etherscan.io/address/0xd7413Aa6A0D16b4eeA901CbC8489f065aE5FB320#code)
+- Source : [`0xc77852B84CD99Fab93a5199928172c988335568C`](https://kovan-optimistic.etherscan.io/address/0xc77852B84CD99Fab93a5199928172c988335568C#code)
 - Bridge : [`0x230e86922D90F2416239C891938DdD0078769DaF`](https://kovan.etherscan.io/address/0x230e86922D90F2416239C891938DdD0078769DaF#code)
 - Destination : [`0x53fF9D8D8416497fbe1B352F509f072b276489A9`](https://kovan-optimistic.etherscan.io/address/0x53fF9D8D8416497fbe1B352F509f072b276489A9#code)
 
@@ -35,18 +35,18 @@
 
 ### Source
 
-- `initialize()`
-- `setXDomainMessenger()`
-- `addDestination()`
+- `initialize(...)` : `_feeBasisPoints = 5`, `_feeRampUp = 120`, `_buddleBridge = 0x230e86922D90F2416239C891938DdD0078769DaF`
+- `setXDomainMessenger(...)` : `_messenger = 0x4200000000000000000000000000000000000007`, `_stdBridge = 0x4200000000000000000000000000000000000010`
+- `addDestination(...)` : `_chain = 69`, `_contract = 0x53fF9D8D8416497fbe1B352F509f072b276489A9`
 
 ### Destination
 
-- `initialize()`
-- `setXDomainMessenger()`
+- `initialize(...)` : `_buddleBridge = 0x230e86922D90F2416239C891938DdD0078769DaF`
+- `setXDomainMessenger(...)` : `_messenger = 0x4200000000000000000000000000000000000007`
 
 ### Bridge
 
-- `initialize()`
-- `setSource()`
-- `setDestination()`
-- `addTokenMap()`
+- `initialize(...)` : `_messenger = 0x4361d0f75a0186c05f971c566dc6bea5957483fd`, `_stdBridge = 0x22f24361d548e5faafb36d1437839f080363982b`
+- `setSource(...)` : `_src = 0xc77852B84CD99Fab93a5199928172c988335568C`
+- `setDestination(...)` : `_dest = 0x53fF9D8D8416497fbe1B352F509f072b276489A9`
+- `addTokenMap(...)` : `_l2TokenAddress = 0x0000000000000000000000000000000000000000`, `_l1TokenAddress = 0x0000000000000000000000000000000000000000`
