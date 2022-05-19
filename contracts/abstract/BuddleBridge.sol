@@ -13,6 +13,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
  */
 abstract contract BuddleBridge is IBuddleBridge, Ownable {
 
+    bytes32 public VERSION;
     address constant BASE_TOKEN_ADDRESS = address(0);
 
     BuddleContracts public buddle; // deployed Buddle src and dest contracts on respective layer 2
@@ -21,6 +22,16 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
     mapping(uint => address) public buddleBridge; // Chain ID => Buddle Bridge Contract Address
     mapping(address => bool) public knownBridges; // Buddle Bridge Contract Address => true
 
+    /********** 
+     * events *
+     **********/
+
+    event FundsBridged(
+        uint256 destChain,
+        address[] tokens,
+        uint256[] amounts,
+        uint256 timestamp
+    );
 
     /************* 
      * modifiers *
