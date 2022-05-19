@@ -14,12 +14,12 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Greeter = await hre.ethers.getContractFactory("BuddleSrcOptimism");
-  const greeter = await Greeter.deploy();
+  const BuddleBridgeOptimism = await hre.ethers.getContractFactory("BuddleBridgeOptimism");
+  const buddleBridgeOptimism = await BuddleBridgeOptimism.deploy();
 
-  await greeter.deployed();
+  await buddleBridgeOptimism.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+  console.log("Bridge Optimism deployed to:", buddleBridgeOptimism.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

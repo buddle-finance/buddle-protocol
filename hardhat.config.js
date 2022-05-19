@@ -32,6 +32,10 @@ module.exports = {
     optimisticKov: {
       url: process.env.OPTIMISTIC_KOVAN_URL || "",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    kovan: {
+      url: process.env.KOVAN_URL || "",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     }
   },
   gasReporter: {
@@ -40,5 +44,6 @@ module.exports = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
+    // apiKey: process.env.OPTIMISMSCAN_API_KEY,
   },
 };
