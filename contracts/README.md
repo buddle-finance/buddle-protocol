@@ -27,9 +27,9 @@
 ### Optimism Contracts
 > On Kovan and Optimistic-Kovan
 
-- Source : [`0x9E638b2C9796E5966f62a6e2d9e397aB86A89781`](https://kovan-optimistic.etherscan.io/address/0x9E638b2C9796E5966f62a6e2d9e397aB86A89781#code)
-- Bridge : [`0x6eb04689C0F84553317bFE1ba221ed63F27840Cc`](https://kovan.etherscan.io/address/0x6eb04689C0F84553317bFE1ba221ed63F27840Cc#code)
-- Destination : [`0x93Ef1b96F7Cea346716634eA022c920AaB772257`](https://kovan-optimistic.etherscan.io/address/0x93Ef1b96F7Cea346716634eA022c920AaB772257#code)
+- Source : [`0xd7413Aa6A0D16b4eeA901CbC8489f065aE5FB320`](https://kovan-optimistic.etherscan.io/address/0xd7413Aa6A0D16b4eeA901CbC8489f065aE5FB320#code)
+- Bridge : [`0x230e86922D90F2416239C891938DdD0078769DaF`](https://kovan.etherscan.io/address/0x230e86922D90F2416239C891938DdD0078769DaF#code)
+- Destination : [`0x53fF9D8D8416497fbe1B352F509f072b276489A9`](https://kovan-optimistic.etherscan.io/address/0x53fF9D8D8416497fbe1B352F509f072b276489A9#code)
 
 ## Initializing
 
