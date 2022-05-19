@@ -43,7 +43,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
     function initialize(
         address _messenger,
         address _stdBridge
-    ) external {
+    ) external onlyOwner {
         require(messenger == address(0), "Contract already initialized!");
 
         messenger = _messenger;
