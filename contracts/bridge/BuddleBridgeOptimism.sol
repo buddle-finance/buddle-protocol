@@ -117,7 +117,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
         for(uint i=0; i < _tokens.length; i++) {
             if(_tokens[i] == BASE_TOKEN_ADDRESS) {
                 require(msg.value >= _amounts[i], "Insufficient funds sent");
-                _bridge.depositETHTo(
+                _bridge.depositETHTo{value: msg.value}(
                     buddle.destination, 
                     1000000, 
                     bytes("")
