@@ -13,7 +13,7 @@ import "@eth-optimism/contracts/L1/messaging/IL1CrossDomainMessenger.sol";
 contract BuddleBridgeOptimism is BuddleBridge {
     using SafeERC20 for IERC20;
 
-    uint constant public CHAIN = 69; // Optimism-Kovan
+    uint256 constant public CHAIN = 69; // Optimism-Kovan
 
     address public messenger;
     address public stdBridge;
@@ -89,7 +89,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
         _messenger.sendMessage(
             buddle.source,
             abi.encodeWithSignature(
-                "confirmTicket(bytes32, uint, address[], uint256[], uint256[], uint256, uint256, bytes32, address)",
+                "confirmTicket(bytes32,uint256,address[],uint256[],uint256[],uint256,uint256,bytes32,address)",
                 _ticket, _chain, _tokens, _amounts, _bounty, _firstIdForTicket, _lastIdForTicket, stateRoot, msg.sender
             ),
             1000000
@@ -156,7 +156,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
         _messenger.sendMessage(
             buddle.destination,
             abi.encodeWithSignature(
-                "approveStateRoot(uint, bytes32)",
+                "approveStateRoot(uint256,bytes32)",
                 CHAIN, _root
             ),
             1000000

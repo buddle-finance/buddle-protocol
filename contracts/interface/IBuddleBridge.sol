@@ -63,7 +63,7 @@ interface IBuddleBridge {
      * @param _contract Contract address of the deployed Buddle contract on layer 1
      */
     function addBuddleBridge(
-        uint _chain,
+        uint256 _chain,
         address _contract
     ) external;
 
@@ -74,7 +74,7 @@ interface IBuddleBridge {
      * @param _contract Contract address of the deployed Buddle contract on layer 1
      */
     function updateBuddleBridge(
-        uint _chain,
+        uint256 _chain,
         address _contract
     ) external;
 
@@ -96,7 +96,7 @@ interface IBuddleBridge {
      */
     function claimBounty(
         bytes32 _ticket,
-        uint _chain,
+        uint256 _chain,
         address[] memory _tokens,
         uint256[] memory _amounts,
         uint256[] memory _bounty,

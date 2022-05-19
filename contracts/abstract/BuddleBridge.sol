@@ -30,7 +30,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
      * Checks whether a destination contract exists for the given chain id
      *
      */
-    modifier supportedChain(uint _chain) {
+    modifier supportedChain(uint256 _chain) {
         require(buddleBridge[_chain] != address(0), 
             "A bridge contract for the desired chain does not exist yet"
         );
@@ -96,7 +96,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
      * @inheritdoc IBuddleBridge
      */
     function addBuddleBridge(
-        uint _chain,
+        uint256 _chain,
         address _contract
     ) external onlyOwner {
         require(buddleBridge[_chain] == address(0),
@@ -110,7 +110,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
      * @inheritdoc IBuddleBridge
      */
     function updateBuddleBridge(
-        uint _chain,
+        uint256 _chain,
         address _contract
     ) external onlyOwner supportedChain(_chain) {
         knownBridges[buddleBridge[_chain]] = false;
