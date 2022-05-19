@@ -13,7 +13,7 @@ import "@eth-optimism/contracts/L2/messaging/L2CrossDomainMessenger.sol";
 contract BuddleSrcOptimism is BuddleSource {
     using SafeERC20 for IERC20;
 
-    uint constant public CHAIN = 69;
+    uint256 constant public CHAIN = 69;
     
     address messenger;
     address stdBridge;
@@ -85,7 +85,7 @@ contract BuddleSrcOptimism is BuddleSource {
      * @inheritdoc BuddleSource
      */
     function _bridgeFunds(
-        uint _destChain,
+        uint256 _destChain,
         address[] memory _tokens,
         uint256[] memory _tokenAmounts,
         uint256[] memory _bountyAmounts,

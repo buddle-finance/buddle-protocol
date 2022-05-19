@@ -22,19 +22,19 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
     uint constant public MAX_DEPOSIT_COUNT = 2 ** MERKLE_TREE_DEPTH - 1;
     
     bytes32[MERKLE_TREE_DEPTH] internal zeroes;
-    mapping(uint => bytes32[MERKLE_TREE_DEPTH]) internal branch;
+    mapping(uint256 => bytes32[MERKLE_TREE_DEPTH]) internal branch;
 
     address public buddleBridge;
-    mapping(uint => address) public buddleDestination;
+    mapping(uint256 => address) public buddleDestination;
 
     address[] public tokens;
     mapping(address => bool) public tokenMapping;
-    mapping(uint => mapping(address => uint256)) internal tokenAmounts;
-    mapping(uint => mapping(address => uint256)) internal bountyAmounts;
+    mapping(uint256 => mapping(address => uint256)) internal tokenAmounts;
+    mapping(uint256 => mapping(address => uint256)) internal bountyAmounts;
 
-    mapping(uint => uint256) public transferCount;
-    mapping(uint => uint256) internal lastConfirmedTransfer;
-    mapping(uint => mapping(bytes32 => bool)) internal tickets;
+    mapping(uint256 => uint256) public transferCount;
+    mapping(uint256 => uint256) public lastConfirmedTransfer;
+    mapping(uint256 => mapping(bytes32 => bool)) internal tickets;
 
     /********** 
      * events *
@@ -44,12 +44,12 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         TransferData transferData,
         uint256 transferID,
         bytes32 node,
-        uint srcChain
+        uint256 srcChain
     );
     
     event TicketCreated(
         bytes32 ticket,
-        uint _destChain,
+        uint256 destChain,
         address[] tokens,
         uint256[] amounts,
         uint256[] bounty,
@@ -80,7 +80,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      * Checks whether a destination contract exists for the given chain id
      *
      */
-    modifier supportedChain(uint _chain) {
+    modifier supportedChain(uint256 _chain) {
         require(buddleDestination[_chain] != address(0), 
             "A destination contract on the desired chain does not exist yet"
         );
@@ -131,7 +131,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
     * @param _provider The bounty seeker on layer 1
     */
     function _bridgeFunds(
-        uint _destChain,
+        uint256 _destChain,
         address[] memory _tokens,
         uint256[] memory _tokenAmounts,
         uint256[] memory _bountyAmounts,
@@ -185,7 +185,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      * @inheritdoc IBuddleSource
      */
     function addDestination(
-        uint _chain,
+        uint256 _chain,
         address _contract
     ) external onlyOwner checkInitialization {
         require(buddleDestination[_chain] == address(0), 
@@ -225,7 +225,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      * @inheritdoc IBuddleSource
      */
     function updateDestination(
-        uint _chain,
+        uint256 _chain,
         address _contract
     ) external onlyOwner checkInitialization supportedChain(_chain) {
         buddleDestination[_chain] = _contract;
@@ -242,7 +242,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         address _tokenAddress,
         uint256 _amount,
         address _destination,
-        uint _destChain
+        uint256 _destChain
     ) external payable 
       checkInitialization
       supportedChain(_destChain)
@@ -301,7 +301,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
     /**
      * @inheritdoc IBuddleSource
      */
-    function createTicket(uint _destChain) external checkInitialization returns(bytes32) {
+    function createTicket(uint256 _destChain) external checkInitialization returns(bytes32) {
         uint256[] memory _tokenAmounts = new uint256[](tokens.length);
         uint256[] memory _bountyAmounts = new uint256[](tokens.length);
         bytes32 _ticket;
@@ -335,7 +335,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      */
     function confirmTicket(
         bytes32 _ticket,
-        uint _destChain,
+        uint256 _destChain,
         address[] memory _tokens,
         uint256[] memory _tokenAmounts,
         uint256[] memory _bountyAmounts,
@@ -375,7 +375,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      * @dev Taken from Ethereum's deposit contract
      * @dev see https://etherscan.io/address/0x00000000219ab540356cbb839cbe05303d7705fa#code#L1
      */
-    function updateMerkle(uint _chain, bytes32 _node) internal {
+    function updateMerkle(uint256 _chain, bytes32 _node) internal {
         uint size = transferCount[_chain] % MAX_DEPOSIT_COUNT;
         for (uint height = 0; height < MERKLE_TREE_DEPTH; height++) {
 
@@ -400,7 +400,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      * @dev see https://etherscan.io/address/0x00000000219ab540356cbb839cbe05303d7705fa#code#L1
      *
      */
-    function getMerkleRoot(uint _chain) internal view checkInitialization returns (bytes32) {
+    function getMerkleRoot(uint256 _chain) internal view checkInitialization returns (bytes32) {
         bytes32 node;
         uint size = transferCount[_chain] % MAX_DEPOSIT_COUNT;
         for (uint height = 0; height < MERKLE_TREE_DEPTH; height++) {

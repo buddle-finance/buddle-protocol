@@ -14,7 +14,7 @@ interface IBuddleSource {
         uint256 fee;
         uint256 startTime;
         uint256 feeRampup;
-        uint chain;
+        uint256 chain;
     }
 
     /********************** 
@@ -47,7 +47,7 @@ interface IBuddleSource {
      *
      */
     function addDestination(
-        uint _destChain,
+        uint256 _destChain,
         address _contract
     ) external;
 
@@ -80,7 +80,7 @@ interface IBuddleSource {
      *
      */
     function updateDestination(
-        uint _destChain,
+        uint256 _destChain,
         address _contract
     ) external;
 
@@ -103,7 +103,7 @@ interface IBuddleSource {
         address _tokenAddress,
         uint256 _amount,
         address _destination,
-        uint _destChain
+        uint256 _destChain
     ) external payable returns(bytes32 node);
 
     /**
@@ -113,7 +113,7 @@ interface IBuddleSource {
      * @param _destChain The chain ID for the destination blockchain
      */
     function createTicket(
-        uint _destChain
+        uint256 _destChain
     ) external returns(bytes32 node);
 
     /**
@@ -132,7 +132,7 @@ interface IBuddleSource {
      */
     function confirmTicket(
         bytes32 _ticket,
-        uint _destChain,
+        uint256 _destChain,
         address[] memory _tokens,
         uint256[] memory _tokenAmounts,
         uint256[] memory _bountyAmounts,
