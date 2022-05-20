@@ -30,7 +30,8 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         uint256 destChain,
         address[] tokens,
         uint256[] amounts,
-        uint256 timestamp
+        uint256 timestamp,
+        bytes32 ticketId
     );
 
     /************* 
