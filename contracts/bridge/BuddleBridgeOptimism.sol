@@ -99,7 +99,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
         );
 
         IBuddleBridge _bridge = IBuddleBridge(buddleBridge[_chain]);
-        _bridge.transferFunds{value: msg.value}(_tokens, _amounts, msg.sender);
+        _bridge.transferFunds{value: msg.value}(_tokens, _amounts, msg.sender, _ticket);
         _bridge.approveRoot(stateRoot);
 
     }
@@ -110,7 +110,8 @@ contract BuddleBridgeOptimism is BuddleBridge {
     function transferFunds(
         address[] memory _tokens,
         uint256[] memory _amounts,
-        address bountySeeker
+        address bountySeeker,
+        bytes32 _ticket
     ) external payable 
       checkInitialization
       onlyKnownBridge {
@@ -143,7 +144,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
             }
         }
 
-        emit FundsBridged(CHAIN, _tokens, _amounts, block.timestamp);
+        emit FundsBridged(CHAIN, _tokens, _amounts, block.timestamp, _ticket);
 
     }
 

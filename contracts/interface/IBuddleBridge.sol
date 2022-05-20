@@ -115,7 +115,8 @@ interface IBuddleBridge {
     function transferFunds(
         address[] memory _tokens,
         uint256[] memory _amounts,
-        address bountySeeker
+        address bountySeeker,
+        bytes32 _ticket
     ) external payable;
 
     /**
