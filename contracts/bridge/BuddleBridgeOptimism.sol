@@ -37,15 +37,18 @@ contract BuddleBridgeOptimism is BuddleBridge {
     /**
      * Initialize the contract with state variables
      *
+     * @param _version Contract version
      * @param _messenger The address of the L1 Cross Domain Messenger Contract
      * @param _stdBridge The address of the L1 Standard Token Bridge
      */
     function initialize(
+        bytes32 _version,
         address _messenger,
         address _stdBridge
     ) external onlyOwner {
         require(messenger == address(0), "Contract already initialized!");
 
+        VERSION = _version;
         messenger = _messenger;
         stdBridge = _stdBridge;
 
@@ -96,7 +99,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
         );
 
         IBuddleBridge _bridge = IBuddleBridge(buddleBridge[_chain]);
-        _bridge.transferFunds{value: msg.value}(_tokens, _amounts, msg.sender);
+        _bridge.transferFunds{value: msg.value}(_tokens, _amounts, msg.sender, _ticket);
         _bridge.approveRoot(stateRoot);
 
     }
@@ -107,7 +110,8 @@ contract BuddleBridgeOptimism is BuddleBridge {
     function transferFunds(
         address[] memory _tokens,
         uint256[] memory _amounts,
-        address bountySeeker
+        address bountySeeker,
+        bytes32 _ticket
     ) external payable 
       checkInitialization
       onlyKnownBridge {
@@ -139,6 +143,8 @@ contract BuddleBridgeOptimism is BuddleBridge {
                 );
             }
         }
+
+        emit FundsBridged(CHAIN, _tokens, _amounts, block.timestamp, _ticket);
 
     }
 

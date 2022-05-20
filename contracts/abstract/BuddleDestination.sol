@@ -14,6 +14,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 abstract contract BuddleDestination is IBuddleDestination, Ownable {
     using SafeERC20 for IERC20;
 
+    bytes32 public VERSION;
     address constant BASE_TOKEN_ADDRESS = address(0);
 
     address public buddleBridge;
@@ -99,13 +100,16 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
     /**
      * Initialize the contract with state variables
      * 
+     * @param _version Contract version
      * @param _buddleBridge Buddle Bridge contract on Layer-1
      */
     function initialize(
+        bytes32 _version,
         address _buddleBridge
     ) external onlyOwner {
         require(buddleBridge == address(0), "contract already initialized!");
         
+        VERSION = _version;
         buddleBridge = _buddleBridge;
     }
 

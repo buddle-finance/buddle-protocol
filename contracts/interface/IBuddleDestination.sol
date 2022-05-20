@@ -20,9 +20,11 @@ interface IBuddleDestination {
     /**
      * Initialize the contract with state variables
      * 
+     * @param _version Contract version
      * @param _buddleBridge Buddle Bridge contract on Layer-1
      */
     function initialize(
+        bytes32 _version,
         address _buddleBridge
     ) external;
 

@@ -24,11 +24,13 @@ interface IBuddleSource {
     /**
      * Initialize the contract with state variables
      * 
+     * @param _version Contract version
      * @param _feeBasisPoints The fee per transfer in basis points
      * @param _feeRampUp The fee ramp up for each transfer
      * @param _buddleBridge The Layer-1 Buddle Bridge contract
      */
     function initialize(
+        bytes32 _version,
         uint256 _feeBasisPoints,
         uint256 _feeRampUp,
         address _buddleBridge

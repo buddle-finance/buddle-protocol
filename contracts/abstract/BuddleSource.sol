@@ -14,7 +14,9 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 abstract contract BuddleSource is IBuddleSource, Ownable {
     using SafeERC20 for IERC20;
 
+    bytes32 public VERSION;
     address constant BASE_TOKEN_ADDRESS = address(0);
+
     uint256 public CONTRACT_FEE_BASIS_POINTS;
     uint256 public CONTRACT_FEE_RAMP_UP;
     
@@ -146,12 +148,14 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      * @inheritdoc IBuddleSource
      */
     function initialize(
+        bytes32 _version,
         uint256 _feeBasisPoints,
         uint256 _feeRampUp,
         address _buddleBridge
     ) external onlyOwner {
         require(buddleBridge == address(0), "Contract already initialized!");
-
+        
+        VERSION = _version;
         CONTRACT_FEE_BASIS_POINTS = _feeBasisPoints;
         CONTRACT_FEE_RAMP_UP = _feeRampUp;
         buddleBridge = _buddleBridge;
