@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "../abstract/BuddleDestination.sol";
+import "../_abstract/BuddleDestination.sol";
 
 import "@arbitrum/nitro-contracts/src/libraries/AddressAliasHelper.sol";
 

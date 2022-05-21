@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "../abstract/BuddleSource.sol";
+import "../_abstract/BuddleSource.sol";
 
-import "../ext/arbitrum/ITokenGateway.sol";
+import "./ext/ITokenGateway.sol";
 import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import "@arbitrum/nitro-contracts/src/libraries/AddressAliasHelper.sol";
 
