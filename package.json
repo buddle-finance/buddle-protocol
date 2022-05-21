@@ -22,6 +22,7 @@
     "solidity-coverage": "^0.7.18"
   },
   "dependencies": {
+    "@arbitrum/nitro-contracts": "^1.0.0-beta.1",
     "@eth-optimism/contracts": "^0.5.23",
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0"
