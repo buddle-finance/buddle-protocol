@@ -3,7 +3,7 @@ pragma solidity ^0.8.11;
 
 import "../abstract/BuddleSource.sol";
 
-import "arbos-precompiles/arbos/builtin/ArbSys.sol";
+import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import "@arbitrum/nitro-contracts/src/libraries/AddressAliasHelper.sol";
 import "arb-bridge-peripherals/contracts/tokenbridge/arbitrum/gateway/L2GatewayRouter.sol";
 
@@ -90,12 +90,11 @@ contract BuddleSrcArbitrum is BuddleSource {
         address _provider
     ) internal override {
 
-        ArbSys _arb = ArbSys(arbSys);
         L2GatewayRouter _router = L2GatewayRouter(router);
 
         for (uint n = 0; n < _tokens.length; n++) {
             if(_tokens[n] == BASE_TOKEN_ADDRESS) {
-                _arb.withdrawEth{value: _tokenAmounts[n]+_bountyAmounts[n]}(_provider);
+                ArbSys(arbSys).withdrawEth{value: _tokenAmounts[n]+_bountyAmounts[n]}(_provider);
             } else {
                 _router.outboundTransfer(
                     l1TokenMap(_tokens[n]),
