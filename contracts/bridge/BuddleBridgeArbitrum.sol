@@ -3,7 +3,7 @@ pragma solidity ^0.8.11;
 
 import "../abstract/BuddleBridge.sol";
 
-import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
+import "../ext/arbitrum/ITokenGateway.sol";
 import "@arbitrum/nitro-contracts/src/bridge/IInbox.sol";
 import "@arbitrum/nitro-contracts/src/bridge/IOutbox.sol";
 
@@ -16,6 +16,7 @@ contract BuddleBridgeArbitrum is BuddleBridge {
 
     uint256 constant public CHAIN = 421611; // Arbitrum-Rinkeby
 
+    address public router;
     address public arbInbox;
     address public arbOutbox;
 
@@ -39,17 +40,19 @@ contract BuddleBridgeArbitrum is BuddleBridge {
      * Initialize the contract with state variables
      *
      * @param _version Contract version
-     * @param _messenger The address of the L1 Cross Domain Messenger Contract
-     * @param _stdBridge The address of the L1 Standard Token Bridge
      */
     function initialize(
         bytes32 _version,
-        address _messenger,
-        address _stdBridge
+        address _gatewayRouter,
+        address _arbInbox,
+        address _arbOutbox
     ) external onlyOwner {
         require(bytes32(VERSION).length == 0, "Contract already initialized!");
 
         VERSION = _version;
+        router = _gatewayRouter;
+        arbInbox = _arbInbox;
+        arbOutbox = _arbOutbox;
     }
 
     /********************
@@ -71,6 +74,11 @@ contract BuddleBridgeArbitrum is BuddleBridge {
     ) external payable 
       checkInitialization {
 
+        bytes memory data = abi.encodeWithSignature(
+            "confirmTicket(bytes32,uint256,address[],uint256[],uint256[],uint256,uint256,bytes32,address)",
+            _ticket, _chain, _tokens, _amounts, _bounty, _firstIdForTicket, _lastIdForTicket, stateRoot, msg.sender
+        );
+
         IInbox(arbInbox).createRetryableTicket(
             buddle.source,
             0,
@@ -79,10 +87,7 @@ contract BuddleBridgeArbitrum is BuddleBridge {
             msg.sender,
             1000000, // Max gas deducted from user's L2 balance to cover base submission fee
             0.3 * 10 ** 9, // gasPrice (in gwei)
-            abi.encodeWithSignature(
-                "confirmTicket(bytes32,uint256,address[],uint256[],uint256[],uint256,uint256,bytes32,address)",
-                _ticket, _chain, _tokens, _amounts, _bounty, _firstIdForTicket, _lastIdForTicket, stateRoot, msg.sender
-            )
+            data
         );
 
 
@@ -103,6 +108,20 @@ contract BuddleBridgeArbitrum is BuddleBridge {
     ) external payable 
       checkInitialization
       onlyKnownBridge {
+        
+        // @dev see https://github.com/OffchainLabs/arbitrum/blob/master/packages/arb-bridge-peripherals/contracts/tokenbridge/ethereum/gateway/L1GatewayRouter.sol#L238
+        // uint256 expectedEth;
+        // for(uint i=0; i<_tokens.length; i++) {
+        //     if(_tokens[i] == BASE_TOKEN_ADDRESS) {
+        //         expectedEth += _amounts[i];
+        //     } else {
+        //         expectedEth += 1000000 * 3 / 10 * 10 ** 9 + 10000;
+        //     }
+        // }
+        // require(msg.value >= expectedEth, "Insufficent ETH sent");
+        // TODO uncomment above when using GatewayRouter
+
+        ITokenGateway _router = ITokenGateway(router); // TODO change to GatewayRouter
 
         for(uint i=0; i < _tokens.length; i++) {
             if(_tokens[i] == BASE_TOKEN_ADDRESS) {
@@ -110,13 +129,21 @@ contract BuddleBridgeArbitrum is BuddleBridge {
                 // TODO specify destination address
                 IInbox(arbInbox).depositEth{value: msg.value}(100000);
             } else {
-                IERC20 token = IERC20(_tokens[i]);
-                require(token.balanceOf(bountySeeker) >= _amounts[i], "Insufficient funds sent");
-                
-                token.safeTransferFrom(bountySeeker, address(this), _amounts[i]);
-                token.approve(messenger, _amounts[i]);
 
-                // TODO GatewayRouter.outBoundTransfer
+                // IERC20 token = IERC20(_tokens[i]);
+                // require(token.balanceOf(bountySeeker) >= _amounts[i], "Insufficient funds sent");
+                
+                // token.safeTransferFrom(bountySeeker, address(this), _amounts[i]);
+                // token.approve(_router.l1TokenToGateway()[_tokens[i]], _amounts[i]);
+
+                // _router.outboundTransfer(
+                //     tokenMap[_tokens[i]], // L1 token address
+                //     buddle.destination,
+                //     _amounts[i],
+                //     1000000,
+                //     3 / 10 * 10 ** 9, // 0.3 Gwei
+                //     bytes("10")
+                // );
             }
                
         }
@@ -141,7 +168,7 @@ contract BuddleBridgeArbitrum is BuddleBridge {
             msg.sender, // TODO: check if sender is contract or confirmTicket caller
             msg.sender, // TODO: check if sender is contract or confirmTicket caller
             1000000, // Max gas deducted from user's L2 balance to cover base submission fee
-            0.3 * 10 ** 9, // gasPrice (in gwei)
+            3 / 10 * 10 ** 9, // gasPrice (0.3 gwei)
             abi.encodeWithSignature(
                 "approveStateRoot(uint256,bytes32)",
                 CHAIN, _root

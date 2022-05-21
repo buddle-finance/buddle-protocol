@@ -3,9 +3,9 @@ pragma solidity ^0.8.11;
 
 import "../abstract/BuddleSource.sol";
 
+import "../ext/arbitrum/ITokenGateway.sol";
 import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import "@arbitrum/nitro-contracts/src/libraries/AddressAliasHelper.sol";
-import "arb-bridge-peripherals/contracts/tokenbridge/arbitrum/gateway/L2GatewayRouter.sol";
 
 /**
  *
@@ -32,11 +32,11 @@ contract BuddleSrcArbitrum is BuddleSource {
         router = _gatewayRouter;
     }
 
-    function updateArbSys(address _arbSys) {
+    function updateArbSys(address _arbSys) external {
         arbSys = _arbSys;
     }
 
-    function updateGatewayRouter(address _gatewayRouter) {
+    function updateGatewayRouter(address _gatewayRouter) external {
         router = _gatewayRouter;
     }
 
@@ -90,18 +90,20 @@ contract BuddleSrcArbitrum is BuddleSource {
         address _provider
     ) internal override {
 
-        L2GatewayRouter _router = L2GatewayRouter(router);
+        ITokenGateway _router = ITokenGateway(router); // TODO change to GatewayRouter
 
         for (uint n = 0; n < _tokens.length; n++) {
             if(_tokens[n] == BASE_TOKEN_ADDRESS) {
                 ArbSys(arbSys).withdrawEth{value: _tokenAmounts[n]+_bountyAmounts[n]}(_provider);
             } else {
-                _router.outboundTransfer(
-                    l1TokenMap(_tokens[n]),
-                    _provider,
-                    _tokenAmounts[n]+_bountyAmounts[n],
-                    bytes("")
-                );
+                // _router.outboundTransfer(
+                //     l1TokenMap[_tokens[n]],
+                //     _provider,
+                //     _tokenAmounts[n]+_bountyAmounts[n],
+                //     1000000,
+                //     3 / 10 * 10 ** 9, // 0.3 Gwei
+                //     bytes("")
+                // );
             }
             tokenAmounts[_destChain][_tokens[n]] -= _tokenAmounts[n];
             bountyAmounts[_destChain][_tokens[n]] -= _bountyAmounts[n];
