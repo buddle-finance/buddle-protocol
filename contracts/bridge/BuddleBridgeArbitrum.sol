@@ -20,18 +20,6 @@ contract BuddleBridgeArbitrum is BuddleBridge {
     address public arbInbox;
     address public arbOutbox;
 
-    /*************
-     * modifiers *
-     *************/
-
-    /**
-     * Checks whether the contract is initialized
-     */
-    modifier checkInitialization() {
-        require(bytes32(VERSION).length > 0, "Contract not initialized yet.");
-        _;
-    }
-    
     /********************** 
      * onlyOwner functions *
      ***********************/

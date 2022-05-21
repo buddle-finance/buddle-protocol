@@ -18,18 +18,6 @@ contract BuddleBridgeOptimism is BuddleBridge {
     address public messenger;
     address public stdBridge;
 
-    /*************
-     * modifiers *
-     *************/
-
-    /**
-     * Checks whether the contract is initialized
-     */
-    modifier checkInitialization() {
-        require(messenger != address(0), "Contract not initialized yet.");
-        _;
-    }
-
     /********************** 
      * onlyOwner functions *
      ***********************/
