@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "../abstract/BuddleBridge.sol";
+import "../_abstract/BuddleBridge.sol";
 
 import "@eth-optimism/contracts/L1/messaging/IL1StandardBridge.sol";
 import "@eth-optimism/contracts/L1/messaging/IL1CrossDomainMessenger.sol";

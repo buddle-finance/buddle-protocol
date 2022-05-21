@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "../abstract/BuddleDestination.sol";
+import "../_abstract/BuddleDestination.sol";
 
 import "@eth-optimism/contracts/L2/messaging/L2CrossDomainMessenger.sol";
 
