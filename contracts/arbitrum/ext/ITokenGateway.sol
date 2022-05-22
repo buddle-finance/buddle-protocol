@@ -73,4 +73,16 @@ interface ITokenGateway {
      * @dev temporary solution to incompatible solidity versions
      */
     function getGateway(address _token) external view returns (address gateway);
+
+    /**
+     * @notice Taken from L2GatewayRouter :
+     * https://github.com/OffchainLabs/arbitrum/blob/master/packages/arb-bridge-peripherals/contracts/tokenbridge/arbitrum/gateway/L2GatewayRouter.sol#L57
+     * @dev temporary solution to incompatible solidity versions
+     */
+    function outboundTransfer(
+        address _l1Token,
+        address _to,
+        uint256 _amount,
+        bytes calldata _data
+    ) external payable returns (bytes memory);
 }
