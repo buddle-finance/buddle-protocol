@@ -66,23 +66,4 @@ interface ITokenGateway {
      * @return L2 address of a bridged ERC20 token
      */
     function calculateL2TokenAddress(address l1ERC20) external view returns (address);
-
-    /**
-     * @notice Taken from GatewayRouter : 
-     * https://github.com/OffchainLabs/arbitrum/blob/master/packages/arb-bridge-peripherals/contracts/tokenbridge/libraries/gateway/GatewayRouter.sol#L115
-     * @dev temporary solution to incompatible solidity versions
-     */
-    function getGateway(address _token) external view returns (address gateway);
-
-    /**
-     * @notice Taken from L2GatewayRouter :
-     * https://github.com/OffchainLabs/arbitrum/blob/master/packages/arb-bridge-peripherals/contracts/tokenbridge/arbitrum/gateway/L2GatewayRouter.sol#L57
-     * @dev temporary solution to incompatible solidity versions
-     */
-    function outboundTransfer(
-        address _l1Token,
-        address _to,
-        uint256 _amount,
-        bytes calldata _data
-    ) external payable returns (bytes memory);
 }
