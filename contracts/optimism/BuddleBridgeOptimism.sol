@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "../abstract/BuddleBridge.sol";
+import "../_abstract/BuddleBridge.sol";
 
 import "@eth-optimism/contracts/L1/messaging/IL1StandardBridge.sol";
 import "@eth-optimism/contracts/L1/messaging/IL1CrossDomainMessenger.sol";
@@ -17,18 +17,6 @@ contract BuddleBridgeOptimism is BuddleBridge {
 
     address public messenger;
     address public stdBridge;
-
-    /*************
-     * modifiers *
-     *************/
-
-    /**
-     * Checks whether the contract is initialized
-     */
-    modifier checkInitialization() {
-        require(messenger != address(0), "Contract not initialized yet.");
-        _;
-    }
 
     /********************** 
      * onlyOwner functions *

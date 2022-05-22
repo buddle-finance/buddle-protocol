@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "../abstract/BuddleBridge.sol";
+import "../_abstract/BuddleBridge.sol";
 
-import "../ext/arbitrum/ITokenGateway.sol";
+import "./ext/ITokenGateway.sol";
 import "@arbitrum/nitro-contracts/src/bridge/IInbox.sol";
 import "@arbitrum/nitro-contracts/src/bridge/IOutbox.sol";
 
@@ -20,18 +20,6 @@ contract BuddleBridgeArbitrum is BuddleBridge {
     address public arbInbox;
     address public arbOutbox;
 
-    /*************
-     * modifiers *
-     *************/
-
-    /**
-     * Checks whether the contract is initialized
-     */
-    modifier checkInitialization() {
-        require(bytes32(VERSION).length > 0, "Contract not initialized yet.");
-        _;
-    }
-    
     /********************** 
      * onlyOwner functions *
      ***********************/

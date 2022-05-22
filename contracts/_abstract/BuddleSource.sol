@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "../interface/IBuddleSource.sol";
+import "../_interface/IBuddleSource.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -74,7 +74,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      *
      */
     modifier checkInitialization() {
-        require(buddleBridge != address(0), "Contract not yet initialzied");
+        require(bytes32(VERSION).length > 0, "Contract not yet initialzied");
         _;
     }
 
@@ -153,7 +153,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         uint256 _feeRampUp,
         address _buddleBridge
     ) external onlyOwner {
-        require(buddleBridge == address(0), "Contract already initialized!");
+        require(bytes32(VERSION).length == 0, "Contract already initialized!");
         
         VERSION = _version;
         CONTRACT_FEE_BASIS_POINTS = _feeBasisPoints;

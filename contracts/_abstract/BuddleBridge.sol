@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "../interface/IBuddleBridge.sol";
+import "../_interface/IBuddleBridge.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -38,6 +38,14 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
      * modifiers *
      *************/
 
+    /**
+     * Checks whether the contract is initialized
+     */
+    modifier checkInitialization() {
+        require(bytes32(VERSION).length > 0, "Contract not initialized yet.");
+        _;
+    }
+    
     /**
      * Checks whether a destination contract exists for the given chain id
      *
