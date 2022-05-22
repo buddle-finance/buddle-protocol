@@ -157,7 +157,7 @@ contract BuddleBridgeArbitrum is BuddleBridge {
                     // gasPriceBid
                     3 / 10 * 10 ** 9, // 0.3 Gwei
                     // calldata data
-                    abi.encode(uint256(10000))
+                    abi.encode(uint256(10000),bytes(""))
                 );
             }
                
