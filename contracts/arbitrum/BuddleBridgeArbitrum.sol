@@ -4,11 +4,11 @@ pragma solidity ^0.8.11;
 import "../_abstract/BuddleBridge.sol";
 
 import "./ext/ITokenGateway.sol";
-import "@arbitrum/nitro-contracts/src/bridge/IInbox.sol";
+import "@arbitrum/nitro-contracts/src/bridge/Inbox.sol";
 import "@arbitrum/nitro-contracts/src/bridge/IOutbox.sol";
 
 // TODO import from package (fix incompatible solidity version issue)
-// import "arb-bridge-peripherals/contracts/tokenbridge/libraries/gateway/ITokenGateway.sol";
+// import "arb-bridge-peripherals/contracts/tokenbridge/libraries/gateway/GatewayRouter.sol";
 
 /**
  *
@@ -101,15 +101,15 @@ contract BuddleBridgeArbitrum is BuddleBridge {
       onlyKnownBridge {
         
         // @dev see https://github.com/OffchainLabs/arbitrum/blob/master/packages/arb-bridge-peripherals/contracts/tokenbridge/ethereum/gateway/L1GatewayRouter.sol#L238
-        // uint256 expectedEth;
-        // for(uint i=0; i<_tokens.length; i++) {
-        //     if(_tokens[i] == BASE_TOKEN_ADDRESS) {
-        //         expectedEth += _amounts[i];
-        //     } else {
-        //         expectedEth += 1000000 * 3 / 10 * 10 ** 9 + 10000;
-        //     }
-        // }
-        // require(msg.value >= expectedEth, "Insufficent ETH sent");
+        uint256 expectedEth;
+        for(uint i=0; i<_tokens.length; i++) {
+            if(_tokens[i] == BASE_TOKEN_ADDRESS) {
+                expectedEth += _amounts[i];
+            } else {
+                expectedEth += 1000000 * 3 / 10 * 10 ** 9 + 10000;
+            }
+        }
+        require(msg.value >= expectedEth, "Insufficent ETH sent");
         // TODO uncomment above when using GatewayRouter
 
         ITokenGateway _router = ITokenGateway(router); // TODO change to GatewayRouter
@@ -117,24 +117,48 @@ contract BuddleBridgeArbitrum is BuddleBridge {
         for(uint i=0; i < _tokens.length; i++) {
             if(_tokens[i] == BASE_TOKEN_ADDRESS) {
                 require(msg.value >= _amounts[i], "Insufficient funds sent");
-                // TODO specify destination address
-                IInbox(arbInbox).depositEth{value: msg.value}(100000);
+                // @dev see https://github.com/OffchainLabs/arbitrum/blob/78118ba205854374ed280a27415cb62c37847f72/packages/arb-bridge-eth/contracts/bridge/Inbox.sol#L247 
+                // and https://github.com/OffchainLabs/arbitrum/blob/78118ba205854374ed280a27415cb62c37847f72/packages/arb-bridge-eth/contracts/bridge/Inbox.sol#L293
+                Inbox(arbInbox).createRetryableTicketNoRefundAliasRewrite{value: msg.value}(
+                    // destAddress
+                    buddle.destination,
+                    // l2 call value
+                    uint256(0),
+                    // maxSubmissionCost
+                    1000000,
+                    // excessFeeRefundAddress
+                    buddle.destination,
+                    // callValueRefundAddress
+                    buddle.destination,
+                    // maxGas
+                    uint256(0),
+                    // gasPriceBid
+                    uint256(0),
+                    // calldata data
+                    bytes("")
+                );
             } else {
 
-                // IERC20 token = IERC20(_tokens[i]);
-                // require(token.balanceOf(bountySeeker) >= _amounts[i], "Insufficient funds sent");
+                IERC20 token = IERC20(_tokens[i]);
+                require(token.balanceOf(bountySeeker) >= _amounts[i], "Insufficient funds sent");
                 
-                // token.safeTransferFrom(bountySeeker, address(this), _amounts[i]);
-                // token.approve(_router.l1TokenToGateway()[_tokens[i]], _amounts[i]);
+                token.safeTransferFrom(bountySeeker, address(this), _amounts[i]);
+                token.approve(_router.getGateway(_tokens[i]), _amounts[i]);
 
-                // _router.outboundTransfer(
-                //     tokenMap[_tokens[i]], // L1 token address
-                //     buddle.destination,
-                //     _amounts[i],
-                //     1000000,
-                //     3 / 10 * 10 ** 9, // 0.3 Gwei
-                //     bytes("10")
-                // );
+                _router.outboundTransfer(
+                    // l1 token address
+                    tokenMap[_tokens[i]],
+                    // to address
+                    buddle.destination,
+                    // amount
+                    _amounts[i],
+                    // maxGas
+                    1000000,
+                    // gasPriceBid
+                    3 / 10 * 10 ** 9, // 0.3 Gwei
+                    // calldata data
+                    abi.encode(uint256(10000))
+                );
             }
                
         }
