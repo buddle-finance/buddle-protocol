@@ -7,6 +7,9 @@ import "./ext/ITokenGateway.sol";
 import "@arbitrum/nitro-contracts/src/bridge/IInbox.sol";
 import "@arbitrum/nitro-contracts/src/bridge/IOutbox.sol";
 
+// TODO import from package (fix incompatible solidity version issue)
+// import "arb-bridge-peripherals/contracts/tokenbridge/libraries/gateway/ITokenGateway.sol";
+
 /**
  *
  *
