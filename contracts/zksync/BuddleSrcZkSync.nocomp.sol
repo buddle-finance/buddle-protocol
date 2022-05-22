@@ -24,7 +24,7 @@ contract BuddleSrcZkSync is BuddleSource {
     /**
     * Set the addresses of the zkSync contract
     *
-    * @param zkSyncAddress zkSync contract address
+    * @param _zkSyncAddress zkSync contract address
     */
     function setZkSyncAddress(
         address _zkSyncAddress

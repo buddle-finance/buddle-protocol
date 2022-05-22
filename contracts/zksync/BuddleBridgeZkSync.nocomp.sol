@@ -3,6 +3,7 @@ pragma solidity ^0.8.11;
 
 import "../_abstract/BuddleBridge.sol";
 
+// FIXME: The IERC20 in the zksync-contracts library is reported as a duplicate declaration.
 import "@matterlabs/zksync-contracts/contracts/interfaces/IZkSync.sol";
 import "@matterlabs/zksync-contracts/contracts/libraries/Operations.sol";
 
@@ -25,8 +26,7 @@ contract BuddleBridgeZkSync is BuddleBridge {
      * Initialize the contract with state variables
      *
      * @param _version Contract version
-     * @param _messenger The address of the L1 Cross Domain Messenger Contract
-     * @param _stdBridge The address of the L1 Standard Token Bridge
+     * @param _zkSyncAddress zkSync contract address
      */
     function initialize(
         bytes32 _version,
@@ -115,7 +115,7 @@ contract BuddleBridgeZkSync is BuddleBridge {
                 require(token.balanceOf(bountySeeker) >= _amounts[i], "Insufficient funds sent");
                 
                 token.safeTransferFrom(bountySeeker, address(this), _amounts[i]);
-                token.approve(messenger, _amounts[i]);
+                token.approve(zkSyncAddress, _amounts[i]);
                 
                 zksync.depositERC20(
                     tokenMap[_tokens[i]], // L1 token address
@@ -134,6 +134,7 @@ contract BuddleBridgeZkSync is BuddleBridge {
     /**
      * @inheritdoc IBuddleBridge
      */
+     // FIXME: approveRoot is a nonpayable function, but zkSync requires ETH for requestExecute.
     function approveRoot(
         bytes32 _root
     ) external
