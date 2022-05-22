@@ -7,6 +7,9 @@ import "./ext/ITokenGateway.sol";
 import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import "@arbitrum/nitro-contracts/src/libraries/AddressAliasHelper.sol";
 
+// TODO import from package (fix incompatible solidity version issue)
+// import "arb-bridge-peripherals/contracts/tokenbridge/libraries/gateway/ITokenGateway.sol";
+
 /**
  *
  *
@@ -96,14 +99,16 @@ contract BuddleSrcArbitrum is BuddleSource {
             if(_tokens[n] == BASE_TOKEN_ADDRESS) {
                 ArbSys(arbSys).withdrawEth{value: _tokenAmounts[n]+_bountyAmounts[n]}(_provider);
             } else {
-                // _router.outboundTransfer(
-                //     l1TokenMap[_tokens[n]],
-                //     _provider,
-                //     _tokenAmounts[n]+_bountyAmounts[n],
-                //     1000000,
-                //     3 / 10 * 10 ** 9, // 0.3 Gwei
-                //     bytes("")
-                // );
+                _router.outboundTransfer(
+                    // l1 token
+                    l1TokenMap[_tokens[n]],
+                    // to
+                    _provider,
+                    // amount
+                    _tokenAmounts[n]+_bountyAmounts[n],
+                    // data
+                    bytes("")
+                );
             }
             tokenAmounts[_destChain][_tokens[n]] -= _tokenAmounts[n];
             bountyAmounts[_destChain][_tokens[n]] -= _bountyAmounts[n];
