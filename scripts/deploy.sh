@@ -67,12 +67,12 @@ echo "Bridge Contract Address: $bdg"
 if [ $chain != "boba" ] # Boba is not etherscan
   then
   echo "please run the following to verify contracts: \n\
-hardhat verify --network $NETWORK_L2 $src && \
-hardhat verify --network $NETWORK_L2 $dst && \
-hardhat verify --network $NETWORK_L1 $bdg"
+npx hardhat verify --network $NETWORK_L2 $src && \
+npx hardhat verify --network $NETWORK_L2 $dst && \
+npx hardhat verify --network $NETWORK_L1 $bdg"
   else
   echo -e "please run the following to verify contracts: \n \
-hardhat verify --network $NETWORK_L1 $bdg"
+npx hardhat verify --network $NETWORK_L1 $bdg"
 fi 
 
 # Clear env vars
