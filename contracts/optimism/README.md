@@ -1,12 +1,14 @@
 ## Deployed Contracts
 
 ### Optimism Kovan
+> Chain ID: 69
 
 - Source : [``]()
 - Bridge : [``]()
 - Destination : [``]()
 
 ### Optimism Mainnet
+> Chain ID: 10
 
 COMING SOON
 
