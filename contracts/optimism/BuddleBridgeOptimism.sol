@@ -4,7 +4,7 @@ pragma solidity ^0.8.11;
 import "../_abstract/BuddleBridge.sol";
 
 import "@eth-optimism/contracts/L1/messaging/IL1StandardBridge.sol";
-import "@eth-optimism/contracts/L1/messaging/IL1CrossDomainMessenger.sol";
+import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
 
 /**
  *
@@ -34,7 +34,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
         address _messenger,
         address _stdBridge
     ) external onlyOwner {
-        require(messenger == address(0), "Contract already initialized!");
+        require(bytes32(VERSION).length == 0, "Contract already initialized!");
 
         VERSION = _version;
         messenger = _messenger;
@@ -75,9 +75,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
     ) external payable 
       checkInitialization {
 
-        IL1CrossDomainMessenger _messenger = IL1CrossDomainMessenger(messenger);
-
-        _messenger.sendMessage(
+        ICrossDomainMessenger(messenger).sendMessage(
             buddle.source,
             abi.encodeWithSignature(
                 "confirmTicket(bytes32,uint256,address[],uint256[],uint256[],uint256,uint256,bytes32,address)",
@@ -145,9 +143,7 @@ contract BuddleBridgeOptimism is BuddleBridge {
       checkInitialization
       onlyKnownBridge {
 
-        IL1CrossDomainMessenger _messenger = IL1CrossDomainMessenger(messenger);
-
-        _messenger.sendMessage(
+        ICrossDomainMessenger(messenger).sendMessage(
             buddle.destination,
             abi.encodeWithSignature(
                 "approveStateRoot(uint256,bytes32)",
