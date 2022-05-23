@@ -3,7 +3,9 @@ pragma solidity ^0.8.11;
 
 import "../_abstract/BuddleDestination.sol";
 
-import "./ext/ICrossDomainMessenger.sol";
+// @dev Boba is Optimism for the most part
+// @dev see https://docs.boba.network/for-developers/developer-start#basics
+import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
 
 contract BuddleDestBoba is BuddleDestination {
 
