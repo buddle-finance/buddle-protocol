@@ -5,7 +5,8 @@ async function main(iden) {
   await hre.run('compile');
 
   // deploy bridge contract
-  const BridgeContract = await hre.ethers.getContractFactory("BuddleSrc"+iden);
+  const BridgeContract = await hre.ethers
+    .getContractFactory(`contracts/${iden.toLowerCase()}/BuddleBridge${iden}.sol:BuddleBridge${iden}`);
   const bdgContract = await BridgeContract.deploy();
   await bdgContract.deployed();
 

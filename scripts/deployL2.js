@@ -5,12 +5,14 @@ async function main(iden) {
   await hre.run('compile');
 
   // deploy source contract
-  const SourceContract = await hre.ethers.getContractFactory("BuddleSrc"+iden);
+  const SourceContract = await hre.ethers
+    .getContractFactory(`contracts/${iden.toLowerCase()}/BuddleSrc${iden}.sol:BuddleSrc${iden}`);
   const srcContract = await SourceContract.deploy();
   await srcContract.deployed();
 
   // deploy destination contract
-  const DestinationContract = await hre.ethers.getContractFactory("BuddleDest"+iden);
+  const DestinationContract = await hre.ethers
+    .getContractFactory(`contracts/${iden.toLowerCase()}/BuddleDest${iden}.sol:BuddleDest${iden}`);
   const dstContract = await DestinationContract.deploy();
   await dstContract.deployed();
 
