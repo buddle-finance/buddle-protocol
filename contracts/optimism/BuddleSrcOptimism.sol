@@ -4,7 +4,7 @@ pragma solidity ^0.8.11;
 import "../_abstract/BuddleSource.sol";
 
 import "@eth-optimism/contracts/L2/messaging/IL2ERC20Bridge.sol";
-import "@eth-optimism/contracts/L2/messaging/L2CrossDomainMessenger.sol";
+import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
 
 /**
  *
@@ -13,7 +13,7 @@ import "@eth-optimism/contracts/L2/messaging/L2CrossDomainMessenger.sol";
 contract BuddleSrcOptimism is BuddleSource {
     using SafeERC20 for IERC20;
 
-    uint256 constant public CHAIN = 69;
+    uint256 constant public CHAIN = 69; // Optimism-Kovan
     
     address public messenger;
     address public stdBridge;
@@ -67,7 +67,7 @@ contract BuddleSrcOptimism is BuddleSource {
      */
     function isBridgeContract() internal view override returns (bool) {
         return (msg.sender == messenger && 
-            L2CrossDomainMessenger(messenger).xDomainMessageSender() == buddleBridge);
+            ICrossDomainMessenger(messenger).xDomainMessageSender() == buddleBridge);
     }
 
     /**

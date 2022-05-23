@@ -12,7 +12,7 @@ import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
  *
  *
  */
-contract BuddleSrcOptimism is BuddleSource {
+contract BuddleSrcBoba is BuddleSource {
     using SafeERC20 for IERC20;
 
     uint256 constant public CHAIN = 28; // Boba-Rinkeby
