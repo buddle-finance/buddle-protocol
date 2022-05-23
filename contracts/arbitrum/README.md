@@ -1,23 +1,27 @@
 ## Deployed Contracts
 
 ### Arbitrum Rinkeby
+> Chain ID: 421611
 
 - Source : [``]()
 - Bridge : [``]()
 - Destination : [``]()
 
 ### Arbitrum Nitro (Goerli)
+> Chain ID: 421612
 
 - Source : [``]()
 - Bridge : [``]()
 - Destination : [``]()
 
 ### Arbitrum Mainnet
+> Chain ID: 42161
+
+COMING SOON
 
 ## Initiation Values
-> Addresses
 
-[BuddleSrcBoba.sol](BuddleSrcBoba.sol)
+[BuddleSrcArbitrum.sol](BuddleSrcArbitrum.sol), [BuddleSrcNitro.sol](BuddleSrcNitro.sol)
 
 | func | var | Rinkeby | Nitro |
 | --- | --- | --- | --- |
@@ -33,7 +37,7 @@
 | | _contract | | |
 
 
-**[BuddleBridgeBoba.sol](BuddleBridgeBoba.sol)**
+[BuddleBridgeArbitrum.sol](BuddleBridgeArbitrum.sol), [BuddleBridgeNitro.sol](BuddleBridgeNitro.sol)
 
 | func | var | Rinkeby | Nitro |
 | --- | --- | --- | --- |
@@ -47,7 +51,7 @@
 | | _l1TokenAddress | 0x0000000000000000000000000000000000000000 | 0x0000000000000000000000000000000000000000 |
 
 
-[BuddleDestBoba.sol](BuddleDestBoba.sol)
+[BuddleDestArbitrum.sol](BuddleDestArbitrum.sol), [BuddleDestNitro.sol](BuddleDestNitro.sol)
 
 | func | var | Rinkeby | Nitro |
 | --- | --- | --- | --- |
