@@ -26,7 +26,6 @@
     "@eth-optimism/contracts": "^0.5.23",
     "@matterlabs/zksync-contracts": "^0.1.0",
     "@openzeppelin/contracts": "^4.6.0",
-    "@openzeppelin/contracts-upgradeable": "^4.6.0",
-    "arb-bridge-peripherals": "^1.0.10"
+    "@openzeppelin/contracts-upgradeable": "^4.6.0"
   }
 }
