@@ -4,6 +4,8 @@ require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 require("hardhat-gas-reporter");
 require("solidity-coverage");
+const {subtask} = require("hardhat/config");
+const {TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS} = require("hardhat/builtin-tasks/task-names");
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -14,6 +16,14 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     console.log(account.address);
   }
 });
+
+// Do not compile files that end with '.nocomp.sol'
+subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS)
+  .setAction(async (_, __, runSuper) => {
+    const paths = await runSuper();
+
+    return paths.filter(p => !p.endsWith(".nocomp.sol"));
+  });
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
