@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "deploy": "chmod +x scripts/deploy.sh && sh scripts/deploy.sh"
+    "deploy": "echo \"do not use\" && exit 1 && chmod +x scripts/deploy.sh && sh scripts/deploy.sh"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
