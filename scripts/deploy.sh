@@ -64,14 +64,14 @@ echo "Source Contract Address: $src"
 echo "Destination Contract Address: $dst"
 echo "Bridge Contract Address: $bdg"
 
-if [ $chain != "boba" ] # Boba is not etherscan
+if [ $chain != "boba" ] && [ $chain != "nitro" ] # Boba and Nitro are not etherscan
   then
   echo "please run the following to verify contracts: \n\
 npx hardhat verify --network $NETWORK_L2 $src && \
 npx hardhat verify --network $NETWORK_L2 $dst && \
 npx hardhat verify --network $NETWORK_L1 $bdg"
   else
-  echo -e "please run the following to verify contracts: \n \
+  echo "please run the following to verify contracts: \n\
 npx hardhat verify --network $NETWORK_L1 $bdg"
 fi 
 
