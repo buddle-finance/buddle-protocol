@@ -27,7 +27,7 @@ COMING SOON
 | addDestination | _chain | 28 |
 | | _contract |  |
 | addDestination | _chain | 421611 |
-| | _contract | 0x359CD2a739B3df966b325aEA868F4a8a63edAEb1 |
+| | _contract | 0x0E239243e8b59e99f98BCbb9D9792ee179C54a7e |
 
 
 [BuddleBridgeBoba.sol](BuddleBridgeBoba.sol)
@@ -42,7 +42,7 @@ COMING SOON
 | addTokenMap | _l2TokenAddress | 0x0000000000000000000000000000000000000000 |
 | | _l1TokenAddress | 0x0000000000000000000000000000000000000000 |
 | addBuddleBridge | _chain | 421611 |
-| | _contract | 0x0A16976ccdF08869DdF1511ae14C3B1467073d23 |
+| | _contract | 0x1e986476FB4C0D1a3600954d9C422160ff850774 |
 
 
 [BuddleDestBoba.sol](BuddleDestBoba.sol)
