@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: LGPL-3.0-or-later
 pragma solidity ^0.8.11;
 
 import "../_abstract/BuddleBridge.sol";
@@ -14,7 +14,7 @@ import "@arbitrum/nitro-contracts/src/bridge/IOutbox.sol";
  *
  *
  */
-contract BuddleBridgeArbitrum is BuddleBridge {
+contract BuddleBridgeNitro is BuddleBridge {
     using SafeERC20 for IERC20;
 
     uint256 constant public CHAIN = 421612; // ArbitrumNitro-Goerli
