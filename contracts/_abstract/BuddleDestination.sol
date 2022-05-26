@@ -307,9 +307,9 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
     ) internal pure returns (uint256) {
         if(_currentTime < _transferData.startTime)
             return 0;
-        else if(_currentTime >= _transferData.startTime + _transferData.feeRampup) // TODO check logic
+        else if(_currentTime >= _transferData.startTime + _transferData.feeRampup)
             return _transferData.fee;
         else
-            return _transferData.fee * (_currentTime - _transferData.startTime); // feeRampup
+            return _transferData.fee * (_transferData.feeRampup - (_currentTime - _transferData.startTime));
     }
 }
