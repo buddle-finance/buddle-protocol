@@ -14,7 +14,7 @@ import "@arbitrum/nitro-contracts/src/bridge/IOutbox.sol";
  *
  *
  */
-contract BuddleBridgeArbitrum is BuddleBridge {
+contract BuddleBridgeNitro is BuddleBridge {
     using SafeERC20 for IERC20;
 
     uint256 constant public CHAIN = 421612; // ArbitrumNitro-Goerli
