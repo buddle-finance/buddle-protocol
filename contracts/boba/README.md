@@ -42,7 +42,7 @@ COMING SOON
 | addTokenMap | _l2TokenAddress | 0x0000000000000000000000000000000000000000 |
 | | _l1TokenAddress | 0x0000000000000000000000000000000000000000 |
 | addBuddleBridge | _chain | 421611 |
-| | _contract | 0x1e986476FB4C0D1a3600954d9C422160ff850774 |
+| | _contract | 0x23EbB8DC02c58C6Ad4B0b89BbDCB0441F63Dd835 |
 
 
 [BuddleDestBoba.sol](BuddleDestBoba.sol)

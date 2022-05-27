@@ -12,9 +12,9 @@ All contracts follow the basic structure of chain specific contracts inheriting 
 ### Arbitrum Rinkeby
 > Chain ID: 421611
 
-- Source : [`0xbABe7bF065F0182c1368D032AE22CEE8Cf839D1c`](https://testnet.arbiscan.io/address/0xbABe7bF065F0182c1368D032AE22CEE8Cf839D1c#code)
-- Bridge : [`0x1e986476FB4C0D1a3600954d9C422160ff850774`](https://rinkeby.etherscan.io/address/0x1e986476FB4C0D1a3600954d9C422160ff850774#code)
-- Destination : [`0x0E239243e8b59e99f98BCbb9D9792ee179C54a7e`](https://testnet.arbiscan.io/address/0x0E239243e8b59e99f98BCbb9D9792ee179C54a7e#code)
+- Source : [`0x9869Fc26826172eB8fB334b39B8D865Be36b01C3`](https://testnet.arbiscan.io/address/0x9869Fc26826172eB8fB334b39B8D865Be36b01C3#code)
+- Bridge : [`0x23EbB8DC02c58C6Ad4B0b89BbDCB0441F63Dd835`](https://rinkeby.etherscan.io/address/0x23EbB8DC02c58C6Ad4B0b89BbDCB0441F63Dd835#code)
+- Destination : [`0xcb122d5dFD3e2b16b07dd95F78AB745CaC086c00`](https://testnet.arbiscan.io/address/0xcb122d5dFD3e2b16b07dd95F78AB745CaC086c00#code)
 
 ### Arbitrum Nitro (Goerli)
 > Chain ID: 421612
