@@ -18,7 +18,7 @@ COMING SOON
 
 | func | var | Rinkeby |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _feeBasisPoints | 5 |
 | | _feeRampUp | 60 |
 | | _buddleBridge | 0x97fBc3503349744bEd031F96BCfc6449d7b6e3fB |
@@ -34,7 +34,7 @@ COMING SOON
 
 | func | var | Rinkeby |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _messenger | 0xF10EEfC14eB5b7885Ea9F7A631a21c7a82cf5D76 |
 | | _stdBridge | 0xDe085C82536A06b40D20654c2AbA342F2abD7077 |
 | setSource | _src | 0xbABe7bF065F0182c1368D032AE22CEE8Cf839D1c |
@@ -49,6 +49,6 @@ COMING SOON
 
 | func | var | Rinkeby |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _buddleBridge | 0x97fBc3503349744bEd031F96BCfc6449d7b6e3fB |
 | setXDomainMessenger | _messenger | 0x4200000000000000000000000000000000000007 |

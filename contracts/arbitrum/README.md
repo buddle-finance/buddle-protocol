@@ -18,7 +18,7 @@ COMING SOON
 
 | func | var | Rinkeby |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _feeBasisPoints | 5 |
 | | _feeRampUp | 60 |
 | | _buddleBridge | 0x23EbB8DC02c58C6Ad4B0b89BbDCB0441F63Dd835 |
@@ -34,7 +34,7 @@ COMING SOON
 
 | func | var | Rinkeby |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _gatewayRouter | 0x70C143928eCfFaf9F5b406f7f4fC28Dc43d68380 |
 | | _arbInbox | 0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e |
 | | _arbOutbox | 0x2360A33905dc1c72b12d975d975F42BaBdcef9F3 |
@@ -50,5 +50,5 @@ COMING SOON
 
 | func | var | Rinkeby |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _buddleBridge | 0x23EbB8DC02c58C6Ad4B0b89BbDCB0441F63Dd835 |

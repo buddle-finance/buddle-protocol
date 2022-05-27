@@ -18,7 +18,7 @@ COMING SOON
 
 | func | var | Kovan |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _feeBasisPoints | 5 |
 | | _feeRampUp | 60 |
 | | _buddleBridge | 0xe396721BF9FD7c320c3c528077428847c4940C65 |
@@ -32,7 +32,7 @@ COMING SOON
 
 | func | var | Kovan |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _messenger | 0x4361d0f75a0186c05f971c566dc6bea5957483fd |
 | | _stdBridge | 0x22f24361d548e5faafb36d1437839f080363982b |
 | setSource | _src | 0x923266F0F6D3a66Ad23a6cD8CEb3512f24258B85 |
@@ -45,6 +45,6 @@ COMING SOON
 
 | func | var | Kovan |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _buddleBridge | 0xe396721BF9FD7c320c3c528077428847c4940C65 |
 | setXDomainMessenger | _messenger | 0x4200000000000000000000000000000000000007 |
