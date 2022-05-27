@@ -38,7 +38,7 @@ contract BuddleBridgeNitro is BuddleBridge {
         address _arbInbox,
         address _arbOutbox
     ) external onlyOwner {
-        require(bytes32(VERSION).length == 0, "Contract already initialized!");
+        require(bytes32(VERSION) == bytes32(""), "Contract already initialized!");
 
         VERSION = _version;
         router = _gatewayRouter;

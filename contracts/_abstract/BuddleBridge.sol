@@ -42,7 +42,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
      * Checks whether the contract is initialized
      */
     modifier checkInitialization() {
-        require(bytes32(VERSION).length > 0, "Contract not initialized yet.");
+        require(bytes32(VERSION) != bytes32(""), "Contract not initialized yet.");
         _;
     }
     

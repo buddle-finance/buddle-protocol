@@ -18,7 +18,7 @@ COMING SOON
 
 | func | var | Nitro |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _feeBasisPoints | 5 |
 | | _feeRampUp | 60 |
 | | _buddleBridge | 0x0E239243e8b59e99f98BCbb9D9792ee179C54a7e |
@@ -34,7 +34,7 @@ COMING SOON
 
 | func | var | Nitro |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _gatewayRouter | 0x8BDFa67ace22cE2BFb2fFebe72f0c91CDA694d4b |
 | | _arbInbox | 0x1FdBBcC914e84aF593884bf8e8Dd6877c29035A2 |
 | | _arbOutbox | 0xFDF2B11347dA17326BAF30bbcd3F4b09c4719584 |
@@ -48,5 +48,5 @@ COMING SOON
 
 | func | var | Nitro |
 | --- | --- | --- |
-| initialize | _version | v0.1.0 |
+| initialize | _version | 0x76302e312e3000000000000000000000000000000000000000000000000000 |
 | | _buddleBridge | 0x0E239243e8b59e99f98BCbb9D9792ee179C54a7e |

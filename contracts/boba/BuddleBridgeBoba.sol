@@ -36,7 +36,7 @@ contract BuddleBridgeBoba is BuddleBridge {
         address _messenger,
         address _stdBridge
     ) external onlyOwner {
-        require(bytes32(VERSION).length == 0, "Contract already initialized!");
+        require(bytes32(VERSION) == bytes32(""), "Contract already initialized!");
 
         VERSION = _version;
         messenger = _messenger;
