@@ -47,10 +47,10 @@ echo "L2 network: $NETWORK_L2"
 
 # Deploy and verify L2 contracts
 export HARDHAT_NETWORK=$NETWORK_L2
-out=$(node $dir/deployL2.js $chain) # Nothing to compile\n<srcAddr> <dstAddr>
-
-src=$(echo "$out" | tail -1 | cut -d " " -f 1)
-dst=$(echo "$out" | tail -1 | cut -d " " -f 2)
+node $dir/deployL2.js $chain # handles verification as well
+# out=$(node $dir/deployL2.js $chain)
+# src=$(echo "$out" | tail -1 | cut -d " " -f 1)
+# dst=$(echo "$out" | tail -1 | cut -d " " -f 2)
 
 # Deploy and verify L1 bridge contract
 export HARDHAT_NETWORK=$NETWORK_L1
@@ -67,8 +67,6 @@ echo "Bridge Contract Address: $bdg"
 if [ $chain != "boba" ] && [ $chain != "nitro" ] # Boba and Nitro are not etherscan
   then
   echo "please run the following to verify contracts: \n\
-npx hardhat verify --network $NETWORK_L2 $src && \
-npx hardhat verify --network $NETWORK_L2 $dst && \
 npx hardhat verify --network $NETWORK_L1 $bdg"
   else
   echo "please run the following to verify contracts: \n\
