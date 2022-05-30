@@ -1,0 +1,39 @@
+{
+    "Optimism": {
+        "l2network": "opKovan",
+        "source": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0x6fd20f9afeb02e7c5c8ef405a92f50881d3b0c6db65f37516d5ec5bae077c05a",
+                "number": 3562075
+            },
+            "gas": 40470356,
+            "txHash": "0xa9827b84601bc3715280efb20b3dcab4fe64ed39d43df8d6ecb3c2c47c06ae24",
+            "address": "0xf7dA9c1B6b850C289389D288413c80E76Da53871",
+            "url": "https://kovan-optimistic.etherscan.io/address/0xf7dA9c1B6b850C289389D288413c80E76Da53871"
+        },
+        "destination": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0x5beb0494f15878be9f30b4ccdcd99d7c188e77265c6895724e222848341597fc",
+                "number": 3562081
+            },
+            "gas": 23480153,
+            "txHash": "0xa2153c0c759da531c244757471065c9e5a325df19f7798336d7e77e0c04b8971",
+            "address": "0x820a448D162cf6cfAF6A16C599e97A3B403d8247",
+            "url": "https://kovan-optimistic.etherscan.io/address/0x820a448D162cf6cfAF6A16C599e97A3B403d8247"
+        },
+        "l1network": "kovan",
+        "bridge": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0xebc852c8d15bf19e87bd54aec52b2e744f27b2502e5ec567e71b485a9e1e894a",
+                "number": 31896819
+            },
+            "gas": 36148786,
+            "txHash": "0xda507028b0fce2e1cdd0c054abc090bb4941ec511bcf1154f327557e3dbdedeb",
+            "address": "0xC687b82Eb5DF5b2d670Abce6310EdC79123f59ee",
+            "url": "https://kovan.etherscan.io/address/0xC687b82Eb5DF5b2d670Abce6310EdC79123f59ee"
+        }
+    }
+}

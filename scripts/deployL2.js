@@ -1,12 +1,6 @@
 const hre = require("hardhat");
 const fs = require("fs");
-
-const explorers = {
-  opKovan: "https://kovan-optimistic.etherscan.io/address/",
-  arbRinkeby: "https://testnet.arbiscan.io/address/",
-  arbNitro: "https://nitro-devnet-explorer.arbitrum.io/address/",
-  bobaRinkeby: "https://blockexplorer.rinkeby.boba.network/address/"
-}
+const extractData = require("./utils.js");
 
 async function main(iden) {
   // Compile the files
@@ -23,28 +17,17 @@ async function main(iden) {
   // deploy source contract
   const SourceContract = await hre.ethers.getContractFactory(src);
   const srcContract = await SourceContract.deploy();
-  const srcDeployment = await srcContract.deployTransaction.wait();
+  console.log("deployed source contract.. waiting for 5 confirmations..");
+  const srcDeployment = await srcContract.deployTransaction.wait(5);
 
   // deploy destination contract
   const DestinationContract = await hre.ethers.getContractFactory(dst);
   const dstContract = await DestinationContract.deploy();
-  const dstDeployment = await dstContract.deployTransaction.wait();
+  console.log("deployed destination contract.. waiting for 5 confirmations..");
+  const dstDeployment = await dstContract.deployTransaction.wait(5);
 
   
   console.log(`Storing deployment information..`)
-  const extractData = (result) => {
-    return {
-      from: result.from,
-      block: {
-        hash: result.blockHash,
-        number: result.blockNumber
-      },
-      gas: result.cumulativeGasUsed,
-      txHash: result.transactionHash,
-      address: result.contractAddress,
-      url: explorers[process.env.HARDHAT_NETWORK] + result.contractAddress
-    }
-  }
   const srcData = extractData(srcDeployment);
   const dstData = extractData(dstDeployment);
 
@@ -57,11 +40,12 @@ async function main(iden) {
   fs.writeFileSync(`${__dirname}/deployed.json`, JSON.stringify(data, null, 4));
   console.log(`Written contract details to ${__dirname}/deployed.json`);
 
+
   // verify contracts
   console.log("Verifying source and destination contracts..");
   if (["boba", "nitro"].includes(iden.toLowerCase())) {
-    console.log("Please manually verify contract on sourcify.dev")
     // TODO :: HH303 Unrecognized task `sourcify`
+    console.log("Please manually verify source and destination contracts on sourcify.dev")
     // await hre.run("sourcify", {
     //   contractName: src
     // });
@@ -69,20 +53,25 @@ async function main(iden) {
     //   contractName: dst
     // });
   } else {
-    await hre.run("verify:verify", {
-      address: srcContract.address,
-      contract: src
-    });
-    await hre.run("verify:verify", {
-      address: dstContract.address,
-      contract: dst
-    });
+    try {
+      await hre.run("verify:verify", {
+        address: srcData.address,
+        contract: src
+      });
+    } catch(err) {
+      console.log("error in verifying source..");
+      console.log(err);
+    }
+    try {
+      await hre.run("verify:verify", {
+        address: dstData.address,
+        contract: dst
+      });
+    } catch(err) {
+      console.log("error in verifying destination..");
+      console.log(err);
+    }
   }
-
-
-  // output addresses delimited by a space
-  console.log(srcContract.address + " " + dstContract.address);
-  
 }
 
 let l2 = process.argv[2];

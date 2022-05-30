@@ -48,29 +48,21 @@ echo "L2 network: $NETWORK_L2"
 # Deploy and verify L2 contracts
 export HARDHAT_NETWORK=$NETWORK_L2
 node $dir/deployL2.js $chain # handles verification as well
-# out=$(node $dir/deployL2.js $chain)
-# src=$(echo "$out" | tail -1 | cut -d " " -f 1)
-# dst=$(echo "$out" | tail -1 | cut -d " " -f 2)
 
 # Deploy and verify L1 bridge contract
 export HARDHAT_NETWORK=$NETWORK_L1
-out=$(node $dir/deployBridge.js $chain) # Nothing to compile\n<bdgAddr>
-bdg=$(echo "$out" | tail -1)
+node $dir/deployBridge.js $chain # handles verification as well
 
 ### echo and exit ###
 
 # echo contract addresses
-echo "Source Contract Address: $src"
-echo "Destination Contract Address: $dst"
-echo "Bridge Contract Address: $bdg"
+echo "please see scripts/deployed.json for deployment information"
 
-if [ $chain != "boba" ] && [ $chain != "nitro" ] # Boba and Nitro are not etherscan
+if [ $chain == "boba" ] && [ $chain == "nitro" ] # Boba and Nitro are not etherscan
   then
-  echo "please run the following to verify contracts: \n\
-npx hardhat verify --network $NETWORK_L1 $bdg"
+  echo "please verify the L2 contracts on https://sourcify.dev before running initialize.js"
   else
-  echo "please run the following to verify contracts: \n\
-npx hardhat verify --network $NETWORK_L1 $bdg"
+  echo "please run initialize.js to initialize the contracts"
 fi 
 
 # Clear env vars
