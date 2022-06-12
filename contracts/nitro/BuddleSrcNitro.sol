@@ -47,7 +47,7 @@ contract BuddleSrcNitro is BuddleSource {
         address _l1Token,
         address _l2Token
     ) external onlyOwner {
-        require(tokenMapping[_l2Token], "L2 token address unknown to contract");
+        require(tokenMapping[_l2Token], "L2 token address unknown");
         l1TokenMap[_l2Token] = _l1Token;
     }
 
