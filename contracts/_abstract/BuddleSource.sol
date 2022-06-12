@@ -8,14 +8,17 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
+ * Buddle Source Abstract Contract
  *
+ * Implements most functions in Buddle Source Interface
+ * layer2 specific code to be implemented in final source contract
  *
  */
 abstract contract BuddleSource is IBuddleSource, Ownable {
     using SafeERC20 for IERC20;
 
     bytes32 public VERSION;
-    address constant BASE_TOKEN_ADDRESS = address(0);
+    address constant public BASE_TOKEN_ADDRESS = address(0);
 
     uint256 public CONTRACT_FEE_BASIS_POINTS;
     uint256 public CONTRACT_FEE_RAMP_UP;
@@ -61,6 +64,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
     );
 
     event TicketConfirmed(
+        uint256 destChain,
         bytes32 ticket,
         bytes32 stateRoot
     );
@@ -83,9 +87,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
      *
      */
     modifier supportedChain(uint256 _chain) {
-        require(buddleDestination[_chain] != address(0), 
-            "A destination contract on the desired chain does not exist yet"
-        );
+        require(buddleDestination[_chain] != address(0), "No destination contract");
         _;
     }
 
@@ -192,9 +194,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         uint256 _chain,
         address _contract
     ) external onlyOwner checkInitialization {
-        require(buddleDestination[_chain] == address(0), 
-            "Destination contract already exists for given chain id"
-        );
+        require(buddleDestination[_chain] == address(0), "Contract already exists");
         buddleDestination[_chain] = _contract;
     }
 
@@ -253,9 +253,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
       supportedToken(_tokenAddress)
       returns(bytes32) {
 
-        require(transferCount[_destChain] < MAX_DEPOSIT_COUNT,
-            "Maximum deposit count reached for given destination chain"
-        );
+        require(transferCount[_destChain] < MAX_DEPOSIT_COUNT, "Max deposit count reached");
 
         // Calculate fee
         uint256 amountPlusFee = (_amount * (10000 + CONTRACT_FEE_BASIS_POINTS)) / 10000;
@@ -349,7 +347,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
         address _provider
     ) external checkInitialization {
 
-        require(isBridgeContract(), "Only the Buddle Bridge contract can call this method");
+        require(isBridgeContract(), "Only Buddle Bridge");
         
         // Build ticket to check validity of data
         bytes32 ticket;
@@ -367,7 +365,7 @@ abstract contract BuddleSource is IBuddleSource, Ownable {
 
         _bridgeFunds(_destChain, _tokens, _tokenAmounts, _bountyAmounts, _provider);
 
-        emit TicketConfirmed(_ticket, _stateRoot);
+        emit TicketConfirmed(_destChain, _ticket, _stateRoot);
     }
 
     /********************** 
