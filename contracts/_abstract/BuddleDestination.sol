@@ -8,14 +8,17 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
+ * Buddle Destination Abstract Contract
  *
+ * Implements most functions in Buddle Source Interface
+ * layer2 specific code to be implemented in final source contract
  *
  */
 abstract contract BuddleDestination is IBuddleDestination, Ownable {
     using SafeERC20 for IERC20;
 
     bytes32 public VERSION;
-    address constant BASE_TOKEN_ADDRESS = address(0);
+    address constant public BASE_TOKEN_ADDRESS = address(0);
 
     address public buddleBridge;
 
@@ -78,7 +81,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
     ) {
         require( liquidityOwners[sourceChain][_id] == msg.sender ||
             (liquidityOwners[sourceChain][_id] == address(0) && _destination == msg.sender),
-            "Can only be called by owner or destination if there is no owner."
+            "Not an owner of transferID"
         );
         _;
     }
@@ -153,7 +156,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
         uint256 sourceChain
     ) external payable checkInitialization {
         require(liquidityOwners[sourceChain][transferID] == address(0),
-            "A Liquidity Provider already exists for this transfer"
+            "Liquidity Provider exists"
         );
         
         transferFee[sourceChain][transferID] = getLPFee(transferData, block.timestamp);
@@ -187,7 +190,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
       checkInitialization
       validOwner(sourceChain, transferID, transferData.destination) {
 
-        require(_verifyNode(transferData, transferID, _node), "Invalid node fromed");
+        require(_verifyNode(transferData, transferID, _node), "Invalid node formed");
         require(_verifyProof(_node, _proof, _root), "Invalid root formed from proof");
         require(approvedRoot[sourceChain][_root], "Unknown root provided");
 
@@ -203,9 +206,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
             transferData.destination : liquidityOwners[sourceChain][transferID];
         
         if(transferData.tokenAddress == BASE_TOKEN_ADDRESS) {
-            require(address(this).balance >= transferData.amount,
-                "Contract doesn't have enough funds yet."
-            );
+            require(address(this).balance >= transferData.amount, "Not enough funds yet");
             payable(claimer).transfer(transferData.amount);
 
         } else {
@@ -226,7 +227,7 @@ abstract contract BuddleDestination is IBuddleDestination, Ownable {
         uint256 sourceChain,
         bytes32 stateRoot
     ) external checkInitialization {
-        require(isBridgeContract(), "Only the Buddle Bridge contract can call this method");
+        require(isBridgeContract(), "Only Buddle Bridge");
         
         approvedRoot[sourceChain][stateRoot] = true;
 
