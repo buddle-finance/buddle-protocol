@@ -10,8 +10,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 /**
  * Buddle Destination Abstract Contract
  *
- * Implements most functions in Buddle Source Interface
- * layer2 specific code to be implemented in final source contract
+ * Implements most functions in Buddle Destination Interface
+ * layer2 specific code to be implemented in final destination contract
  *
  */
 abstract contract BuddleDestination is IBuddleDestination, Ownable {
