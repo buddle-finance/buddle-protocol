@@ -4,36 +4,147 @@
         "source": {
             "from": "0x92660986CD0313448A68558B13984a02D80fC762",
             "block": {
-                "hash": "0x6fd20f9afeb02e7c5c8ef405a92f50881d3b0c6db65f37516d5ec5bae077c05a",
-                "number": 3562075
+                "hash": "0x201c9a6c2b33fc47133f7a6e261ec28f261504c51c885b5ab52a61e34fdb8fde",
+                "number": 3894615
             },
-            "gas": 40470356,
-            "txHash": "0xa9827b84601bc3715280efb20b3dcab4fe64ed39d43df8d6ecb3c2c47c06ae24",
-            "address": "0xf7dA9c1B6b850C289389D288413c80E76Da53871",
-            "url": "https://kovan-optimistic.etherscan.io/address/0xf7dA9c1B6b850C289389D288413c80E76Da53871"
+            "gas": 40376355,
+            "txHash": "0x79d73fd0302f2bbe3a0fa00da151015d3a3b3bdf3c5c8d0834289c54e100154a",
+            "address": "0x120d5C56F307328De6b779B53a7Cb2c827fD807B",
+            "url": "https://kovan-optimistic.etherscan.io/address/0x120d5C56F307328De6b779B53a7Cb2c827fD807B"
         },
         "destination": {
             "from": "0x92660986CD0313448A68558B13984a02D80fC762",
             "block": {
-                "hash": "0x5beb0494f15878be9f30b4ccdcd99d7c188e77265c6895724e222848341597fc",
-                "number": 3562081
+                "hash": "0xfc111b86d6b304e13baae4e293e0044edb903e1c40cad8ecc5dadcb8c185780d",
+                "number": 3894621
             },
-            "gas": 23480153,
-            "txHash": "0xa2153c0c759da531c244757471065c9e5a325df19f7798336d7e77e0c04b8971",
-            "address": "0x820a448D162cf6cfAF6A16C599e97A3B403d8247",
-            "url": "https://kovan-optimistic.etherscan.io/address/0x820a448D162cf6cfAF6A16C599e97A3B403d8247"
+            "gas": 23401065,
+            "txHash": "0xbc3d199712e267a7871f13e4d7f2ab655cca260a3ccd02b57b0d3d4ee3950393",
+            "address": "0xd4b476c428f4dF48947Ce8151ac8a6B51D9E635F",
+            "url": "https://kovan-optimistic.etherscan.io/address/0xd4b476c428f4dF48947Ce8151ac8a6B51D9E635F"
         },
         "l1network": "kovan",
         "bridge": {
             "from": "0x92660986CD0313448A68558B13984a02D80fC762",
             "block": {
-                "hash": "0xebc852c8d15bf19e87bd54aec52b2e744f27b2502e5ec567e71b485a9e1e894a",
-                "number": 31896819
+                "hash": "0x8c40d4f1ca677ecda74005bc541a7c5ea29d26636456663f8466e1fec1c1b271",
+                "number": 32141479
             },
-            "gas": 36148786,
-            "txHash": "0xda507028b0fce2e1cdd0c054abc090bb4941ec511bcf1154f327557e3dbdedeb",
-            "address": "0xC687b82Eb5DF5b2d670Abce6310EdC79123f59ee",
-            "url": "https://kovan.etherscan.io/address/0xC687b82Eb5DF5b2d670Abce6310EdC79123f59ee"
+            "gas": 24144196,
+            "txHash": "0x96c00ff3aef1ea16fd41cf7a593991e92277595354880441d0750f1961c7e83a",
+            "address": "0xcf5CE032D78FaEFAd7264435FB2381D0906249f6",
+            "url": "https://kovan.etherscan.io/address/0xcf5CE032D78FaEFAd7264435FB2381D0906249f6"
+        }
+    },
+    "Arbitrum": {
+        "l2network": "arbRinkeby",
+        "source": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0xb35ab5334e5eef6e75e9474e90a50db3ed184d60fb5612d47f73a0e9655b8e54",
+                "number": 12950532
+            },
+            "gas": 428298520,
+            "txHash": "0x6b260fa76d1e0ad843e2b4f18d4b42df406864103bb7c288116092f563c05062",
+            "address": "0xbE6A94f85b58e7FA3e7e641338c7e4C0f8c98D4C",
+            "url": "https://testnet.arbiscan.io/address/0xbE6A94f85b58e7FA3e7e641338c7e4C0f8c98D4C"
+        },
+        "destination": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0xf9e6091c9e09097eb0f13dbd6cb6fddbede08407de780fa4a9c3fc5334c9fad5",
+                "number": 12950541
+            },
+            "gas": 286282551,
+            "txHash": "0x5f586062b2a07bdd10a95f8dbe5ec0f6f2c2a634f6bb2b37f5aacf7ed24428f3",
+            "address": "0x2846BF321C423743FE4f2C2b6E171E4CC5939F79",
+            "url": "https://testnet.arbiscan.io/address/0x2846BF321C423743FE4f2C2b6E171E4CC5939F79"
+        },
+        "l1network": "rinkeby",
+        "bridge": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0xb6d26efba8e3d114178640d289aa40dfd5657865b09b6b7c15b4bb8243796d85",
+                "number": 10840870
+            },
+            "gas": 36927845,
+            "txHash": "0x7d62b05975229fef975d8e7320c00aa9878003148f7bd84915c4007d73124cb3",
+            "address": "0x2846BF321C423743FE4f2C2b6E171E4CC5939F79",
+            "url": "https://rinkeby.etherscan.io/address/0x2846BF321C423743FE4f2C2b6E171E4CC5939F79"
+        }
+    },
+    "Nitro": {
+        "l2network": "arbNitro",
+        "source": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0xe8ee26f14b531057e88daa61fb678d6e66c9407fecd9cae06ae562a1ef39d7b3",
+                "number": 49548
+            },
+            "gas": 41293395,
+            "txHash": "0xaec7411ecb00e7236a4b69fbd60e146d258d015a26c3f2557a0c3df9a8ad91b7",
+            "address": "0x3ec618E37e00E19bc2b139D0C3aa02feFe692E28",
+            "url": "https://nitro-devnet-explorer.arbitrum.io/address/0x3ec618E37e00E19bc2b139D0C3aa02feFe692E28"
+        },
+        "destination": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0xb52404e0f1e4a402348ec957eb98a9c196e13783d199d39aeb8eb7c024ae5ee6",
+                "number": 49553
+            },
+            "gas": 22493033,
+            "txHash": "0x8108f7e15dad2cda96201bdbbd8b11bd4e6bcb4ebc628c77560aefe061755d62",
+            "address": "0x9869Fc26826172eB8fB334b39B8D865Be36b01C3",
+            "url": "https://nitro-devnet-explorer.arbitrum.io/address/0x9869Fc26826172eB8fB334b39B8D865Be36b01C3"
+        },
+        "l1network": "goerli",
+        "bridge": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0x8ff1d11764daf8409d2c1221aafe0c437491b875e85299a47ed10b2a1322e154",
+                "number": 7048225
+            },
+            "gas": 84944002,
+            "txHash": "0x0dd6af599968f9a11761ec7c6484200dd07ec770e449f784c4cf13b69135d67b",
+            "address": "0x3ec618E37e00E19bc2b139D0C3aa02feFe692E28",
+            "url": "https://goerli.etherscan.io/address/0x3ec618E37e00E19bc2b139D0C3aa02feFe692E28"
+        }
+    },
+    "Boba": {
+        "l1network": "rinkeby",
+        "bridge": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0x79100f447b88e77ee3373fbc0a7b1aa1a9c52b8292a6c161d89b5d0034b98e2f",
+                "number": 10843319
+            },
+            "gas": 123797545,
+            "txHash": "0x7f379604bcd5e23ef6682b1756451d6df928e3ddbe9120eb260e20a0d5f8ee8d",
+            "address": "0xDbA95dB30046C26Ed0421D9D77dc888d28453c42",
+            "url": "https://rinkeby.etherscan.io/address/0xDbA95dB30046C26Ed0421D9D77dc888d28453c42"
+        },
+        "l2network": "bobaRinkeby",
+        "source": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0xce3337edbf2c1623f438eaac41a359de9238e8a49f46f870e97fcd20e786710f",
+                "number": 121913
+            },
+            "gas": 118756097,
+            "txHash": "0x1bf6778f3c37dc4bba645d20ce0653c05816c9c7d9434a3676160b14326aeb8e",
+            "address": "0x97fBc3503349744bEd031F96BCfc6449d7b6e3fB",
+            "url": "https://blockexplorer.rinkeby.boba.network/address/0x97fBc3503349744bEd031F96BCfc6449d7b6e3fB"
+        },
+        "destination": {
+            "from": "0x92660986CD0313448A68558B13984a02D80fC762",
+            "block": {
+                "hash": "0xc4287558d6eee9431a7c606f2024336089a7a9f878e350348295b86d88005b1a",
+                "number": 121918
+            },
+            "gas": 70793112,
+            "txHash": "0x0366627af4e2b6526c7d0171873ab29a3cb51b916cffc189392ee144e1454cdb",
+            "address": "0x2A5B776b61c330854D6CdE8d8D0f247bed44BB76",
+            "url": "https://blockexplorer.rinkeby.boba.network/address/0x2A5B776b61c330854D6CdE8d8D0f247bed44BB76"
         }
     }
 }
