@@ -2,10 +2,10 @@ const { ethers } = require("hardhat");
 const fs = require("fs");
 const path = require("path");
 
-const optimism = require('init/optimism');
-const arbitrum = require('init/arbitrum');
-const boba = require('init/boba');
-const nitro = require('init/nitro');
+const optimism = require('./init/optimism');
+const arbitrum = require('./init/arbitrum');
+const boba = require('./init/boba');
+const nitro = require('./init/nitro');
 
 const version = 'v 0.2.0';
 
@@ -50,7 +50,7 @@ const addresses = {
 }
 
 // get abis
-const abi_dir = path.join('..', path.join('artifacts', 'contracts'));
+const abi_dir = path.join(path.join(__dirname, '..', path.join('artifacts', 'contracts')));
 const abis = {
   source: () => {
     const name = `BuddleSrc${chain}`;
@@ -84,6 +84,6 @@ switch(chain) {
   default: console.log('unsupported chain'); process.exitCode = 1;
 }
 
-console.log('Contracts initialized!');
+// console.log('Contracts initialized!');
 
 // TODO : Add supported tokens
