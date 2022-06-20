@@ -1,6 +1,10 @@
 //SPDX-License-Identifier: LGPL-3.0-or-later
 pragma solidity ^0.8.11;
 
+/**
+ * Buddle Destination Interface
+ * 
+ */
 interface IBuddleDestination {
 
     struct TransferData {
