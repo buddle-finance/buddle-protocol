@@ -115,6 +115,8 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
     /**
      * @inheritdoc IBuddleBridge
      */
+     // TODO: Move this to a common state contract because otherwise we'd need to call the
+     // same function on every bridge contract every time BuddleSrcX is added on any X chain.
     function addBuddleBridge(
         uint256 _chain,
         address _contract
