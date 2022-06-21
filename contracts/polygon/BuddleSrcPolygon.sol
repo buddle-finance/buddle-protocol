@@ -15,7 +15,6 @@ contract BuddleSrcPolygon is BuddleSource {
     using SafeERC20 for IERC20;
 
     uint256 constant public CHAIN = 80001; // Polygon mumbai
-    address public stdBridge;
 
     IFxMessageProcessor public fxChildTunnel;
 
@@ -40,16 +39,6 @@ contract BuddleSrcPolygon is BuddleSource {
         fxChildTunnel = _fxChild;
     }
 
-    /**
-    * Update the address of the standard bridge
-    *
-    * @param _newBridgeAddress Optimism L2 standard bridge
-    */
-    function updateStandardBridge(
-        address _newBridgeAddress
-    ) external onlyOwner checkInitialization {
-        stdBridge = _newBridgeAddress;
-    }
 
     /********************** 
      * internal functions *
@@ -83,25 +72,12 @@ contract BuddleSrcPolygon is BuddleSource {
         uint256[] memory _bountyAmounts,
         address _provider
     ) internal override {
-        IL2ERC20Bridge _bridge = IL2ERC20Bridge(stdBridge);
 
         for (uint n = 0; n < _tokens.length; n++) {
             if(_tokens[n] == BASE_TOKEN_ADDRESS) {
-                _bridge.withdrawTo(
-                    0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000,
-                    _provider,
-                    _tokenAmounts[n]+_bountyAmounts[n],
-                    1000000,
-                    bytes("")
-                );
+                address(0).transfer(_tokenAmounts[0]);
             } else {
-                _bridge.withdrawTo(
-                    _tokens[n],
-                    _provider,
-                    _tokenAmounts[n]+_bountyAmounts[n],
-                    1000000,
-                    bytes("")
-                );
+                IERC20(_token[n]).transfer(address(0), _tokenAmounts[n]);
             }
             tokenAmounts[_destChain][_tokens[n]] -= _tokenAmounts[n];
             bountyAmounts[_destChain][_tokens[n]] -= _bountyAmounts[n];

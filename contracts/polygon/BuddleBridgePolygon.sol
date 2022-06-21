@@ -6,6 +6,14 @@ import "../_abstract/BuddleBridge.sol";
 import "@eth-optimism/contracts/L1/messaging/IL1StandardBridge.sol";
 import "@eth-optimism/contracts/libraries/bridge/ICrossDomainMessenger.sol";
 
+
+/*
+Goeril: "RootChainManager": "0x0d2ae21bf7e72f646ef8e1f2aa92edbd13588691",
+Mumbai: "ChildChainManager": "0xb5505a6d998549090530911180f38aC5130101c6"
+:
+
+*/
+
 /**
  *
  *
