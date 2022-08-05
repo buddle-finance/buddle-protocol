@@ -9,6 +9,13 @@ All contracts follow the basic structure of chain specific contracts inheriting 
 - Bridge : [`0xe396721BF9FD7c320c3c528077428847c4940C65`](https://kovan.etherscan.io/address/0xe396721BF9FD7c320c3c528077428847c4940C65#code)
 - Destination : [`0x556591FABb4cCc4a417093d2a991713E1ba58372`](https://kovan-optimistic.etherscan.io/address/0x556591FABb4cCc4a417093d2a991713E1ba58372#code)
 
+### Optimism Goerli
+> Chain ID: 420
+
+- Source : [`0x8B38d13D5548ECa036686b73d7e85bd31b6B6d55`](https://blockscout.com/optimism/goerli/address/0x8B38d13D5548ECa036686b73d7e85bd31b6B6d55/contracts#address-tabs)
+- Bridge : [`0xcb122d5dFD3e2b16b07dd95F78AB745CaC086c00`](https://goerli.etherscan.io/address/0xcb122d5dFD3e2b16b07dd95F78AB745CaC086c00#code)
+- Destination : [`0x359CD2a739B3df966b325aEA868F4a8a63edAEb1`](https://blockscout.com/optimism/goerli/address/0x359CD2a739B3df966b325aEA868F4a8a63edAEb1/contracts#address-tabs)
+
 ### Arbitrum Rinkeby
 > Chain ID: 421611
 

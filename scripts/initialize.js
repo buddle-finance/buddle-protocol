@@ -19,7 +19,7 @@ class Contracts {
 const networks = {
   'opKovan':69, 'opMain':10,
   'arbRinkeby':421611, 'arbMain':42161,
-  'bobaRinkeby':28, 'bobaMain':288
+  'bobaRinkeby':28, 'bobaMain':288, 'opGoerli':420
 };
 
 const CONTRACT_FEE_BASIS_POINTS = 5;

@@ -78,6 +78,10 @@ module.exports = {
       url: process.env.OPTIMISTIC_KOVAN_URL || "",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    opGoerli: {
+      url: process.env.OPTIMISTIC_GOERLI_URL || "",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
     arbRinkeby: {
       url: process.env.ARBITRUM_RINKEBY_URL || "",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
@@ -104,6 +108,7 @@ module.exports = {
       kovan: process.env.ETHERSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,
       optimisticKovan: process.env.OPTIMISMSCAN_API_KEY,
+      // optimisticGoerli: process.env.OPTIMISMSCAN_API_KEY,
       arbitrumOne: process.env.ARBISCAN_API_KEY,
       arbitrumTestnet: process.env.ARBISCAN_API_KEY,
       polygon: process.env.POLYGONSCAN_API_KEY,

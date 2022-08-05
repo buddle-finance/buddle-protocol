@@ -10,8 +10,8 @@ chain=$(echo "$chain" | tr [:upper:] [:lower:])
 # case match for network
 case "$chain" in
   "optimism")
-    NETWORK_L1="kovan"
-    NETWORK_L2="opKovan"
+    NETWORK_L1="goerli"
+    NETWORK_L2="opGoerli"
   ;;
   "arbitrum")
     NETWORK_L1="rinkeby"
@@ -64,7 +64,7 @@ echo "Source Contract Address: $src"
 echo "Destination Contract Address: $dst"
 echo "Bridge Contract Address: $bdg"
 
-if [ $chain != "boba" ] && [ $chain != "nitro" ] # Boba and Nitro are not etherscan
+if [ $chain != "boba" ] && [ $chain != "nitro" ] && [ $chain != "optimism" ] # Boba and Nitro are not etherscan
   then
   echo "please run the following to verify contracts: \n\
 npx hardhat verify --network $NETWORK_L2 $src && \
