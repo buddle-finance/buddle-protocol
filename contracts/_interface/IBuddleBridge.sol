@@ -2,7 +2,7 @@
 pragma solidity ^0.8.11;
 
 /**
- *
+ * Buddle Bridge Interface
  *
  */
 interface IBuddleBridge {

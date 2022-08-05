@@ -8,13 +8,16 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
- * 
+ * Buddle Bridge Abstract Contract
+ *
+ * Implements most functions in Buddle Bridge Interface
+ * layer2 specific code to be implemented in final bridge contract
  *
  */
 abstract contract BuddleBridge is IBuddleBridge, Ownable {
 
     bytes32 public VERSION;
-    address constant BASE_TOKEN_ADDRESS = address(0);
+    address constant public BASE_TOKEN_ADDRESS = address(0);
 
     BuddleContracts public buddle; // deployed Buddle src and dest contracts on respective layer 2
 
@@ -31,7 +34,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         address[] tokens,
         uint256[] amounts,
         uint256 timestamp,
-        bytes32 ticketId
+        bytes32 ticket
     );
 
     /************* 
@@ -51,9 +54,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
      *
      */
     modifier supportedChain(uint256 _chain) {
-        require(buddleBridge[_chain] != address(0), 
-            "A bridge contract for the desired chain does not exist yet"
-        );
+        require(buddleBridge[_chain] != address(0), "No bridge contract");
         _;
     }
 
@@ -62,7 +63,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
      *
      */
     modifier onlyKnownBridge() {
-        require(knownBridges[msg.sender], "Unauthorized call from unknown contract");
+        require(knownBridges[msg.sender], "Unknown contract");
         _;
     }
 
@@ -76,7 +77,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
     function setSource(
         address _src
     ) external onlyOwner {
-        require(_src != address(0), "Source cannot be the zero address!");
+        require(_src != address(0), "Invalid Source!");
         buddle.source = _src;
     }
 
@@ -86,7 +87,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
     function setDestination(
         address _dest
     ) external onlyOwner {
-        require(_dest != address(0), "Destination cannot be the zero address!");
+        require(_dest != address(0), "Invalid Destination!");
         buddle.destination = _dest;
     }
 
@@ -119,9 +120,7 @@ abstract contract BuddleBridge is IBuddleBridge, Ownable {
         uint256 _chain,
         address _contract
     ) external onlyOwner {
-        require(buddleBridge[_chain] == address(0),
-            "A Buddle Bridge Contract already exists for given chain"
-        );
+        require(buddleBridge[_chain] == address(0), "Buddle Bridge exists");
         buddleBridge[_chain] = _contract;
         knownBridges[_contract] = true;
     }
